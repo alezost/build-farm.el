@@ -142,6 +142,20 @@
                  (string :tag "Other URL"))
   :group 'build-farm)
 
+(defun build-farm-read-url ()
+  "Read from minibuffer and return build farm URL."
+  (completing-read "Build farm URL: "
+                   (build-farm-urls)
+                   nil nil nil nil
+                   build-farm-url))
+
+;;;###autoload
+(defun build-farm-set-url (url)
+  "Set `build-farm-url' to URL.
+Interactively, prompt for URL"
+  (interactive (list (build-farm-read-url)))
+  (setq build-farm-url url))
+
 (defun build-farm-type-by-url (url)
   "Return build farm type by its URL."
   (or (bui-assoc-value build-farm-url-alist url)
