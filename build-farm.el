@@ -119,21 +119,42 @@
 
 ;;; Defining URLs
 
-(defvar build-farm-urls
-  '("https://hydra.gnu.org"
-    "https://berlin.guixsd.org"
-    "https://hydra.nixos.org")
-  "List of URLs of the available build farms.")
+(defvar build-farm-url-alist
+  '(("https://hydra.nixos.org" . hydra)
+    ("https://hydra.gnu.org" . hydra)
+    ("https://berlin.guixsd.org" . cuirass))
+  "Alist of URLs and their types of the available build farms.")
 
-(defcustom build-farm-url (car build-farm-urls)
+(defun build-farm-guess-url ()
+  "Return URL of a build farm that a user probably wants to use."
+  (if (eq 'guix build-farm-preferred-package-manager)
+      "https://hydra.gnu.org"
+    "https://hydra.nixos.org"))
+
+(defun build-farm-urls ()
+  "Return a list of available build farm URLs."
+  (mapcar #'car build-farm-url-alist))
+
+(defcustom build-farm-url (build-farm-guess-url)
   "URL of the default build farm."
   :type `(choice ,@(mapcar (lambda (url) (list 'const url))
-                           build-farm-urls)
+                           (build-farm-urls))
                  (string :tag "Other URL"))
   :group 'build-farm)
 
+(defun build-farm-type-by-url (url)
+  "Return build farm type by its URL."
+  (or (bui-assoc-value build-farm-url-alist url)
+      (progn
+        (message "Unknown URL: <%s>.
+Consider adding it to `build-farm-url-alist'.
+Arbitrarily choosing `hydra' type for this URL."
+                 url)
+        'hydra)))
+
 (defun build-farm-url (&rest url-parts)
-  "Return build farm URL-PARTS."
+  "Return build farm URL using URL-PARTS.
+URL-PARTS are added to `build-farm-url'."
   (apply #'concat build-farm-url "/" url-parts))
 
 (defun build-farm-api-url (type args)

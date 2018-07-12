@@ -23,6 +23,12 @@
 
 (require 'bui)
 
+(defvar build-farm-preferred-package-manager
+  (if (file-exists-p "/gnu") 'guix 'nix)
+  "Package manager that a user probably uses.
+This variable influence what build farm is used by default.
+It should be either `guix' or `nix' symbol.")
+
 (defun build-farm-hexify (value)
   "Convert VALUE to string and hexify it."
   (url-hexify-string (bui-get-string value)))
