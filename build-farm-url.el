@@ -22,6 +22,7 @@
 
 ;;; Code:
 
+(require 'url-handlers)
 (require 'json)
 (require 'build-farm-utils)
 
@@ -131,15 +132,53 @@ Skip ARG, if VALUE is nil or an empty string."
   (build-farm-api-url "jobsets"
     `(("project" . ,project))))
 
+
+;;; Receiving data from a build farm
+
+(defvar url-http-codes)
+
+(defun build-farm-retrieve-url (url)
+  "Retrieve URL synchronously and return buffer containing the data.
+This function is similar to `url-retrieve-synchronously' but it
+also raises an error if URL has not been retrieved properly."
+  ;; This code is taken from `url-insert-file-contents'.
+  (let ((buffer (url-retrieve-synchronously url)))
+    (unless buffer
+      (signal 'file-error (list url "No Data")))
+    (with-current-buffer buffer
+      (when (bound-and-true-p url-http-response-status)
+        (unless (and (>= url-http-response-status 200)
+                     (< url-http-response-status 300))
+          (let ((desc (nth 2 (assq url-http-response-status
+                                   url-http-codes))))
+            (kill-buffer buffer)
+            (signal 'file-error (list url desc))))))
+    buffer))
+
 (defun build-farm-receive-data (url)
   "Return output received from URL and processed with `json-read'."
-  (with-temp-buffer
-    (url-insert-file-contents url)
-    (goto-char (point-min))
-    (let ((json-key-type 'symbol)
-          (json-array-type 'list)
-          (json-object-type 'alist))
-      (json-read))))
+  (let* ((url-request-extra-headers '(("Accept" . "application/json")))
+         (url-buffer (build-farm-retrieve-url url))
+         (content-type (buffer-local-value 'url-http-content-type
+                                           url-buffer)))
+    ;; Do not use `string=' here because the content type may look like
+    ;; this: "application/json;charset=utf-8".
+    (unless (string-match-p "application/json" content-type)
+      ;; Currently Cuirass does not support "Accept" extra header, so it
+      ;; does not return json data from "non-api" URLs.
+      (if (eq (build-farm-url-type) 'cuirass)
+          (error "Sorry, Cuirass does not support this API")
+          (error "\
+The server has not returned 'application/json' content type.
+Perhaps, API has changed:\n%s"
+             url)))
+    (with-temp-buffer
+      (url-insert-buffer-contents url-buffer url)
+      (goto-char (point-min))
+      (let ((json-key-type 'symbol)
+            (json-array-type 'list)
+            (json-object-type 'alist))
+        (json-read)))))
 
 (provide 'build-farm-url)
 
