@@ -26,6 +26,7 @@
 (require 'bui)
 (require 'build-farm)
 (require 'build-farm-utils)
+(require 'build-farm-url)
 
 (build-farm-define-entry-type build
   :search-types '((latest . build-farm-build-latest-api-url)
@@ -95,32 +96,6 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
   "View build log of a build ID."
   (require 'guix-build-log)
   (guix-build-log-find-file (build-farm-build-log-url id)))
-
-
-;;; Defining URLs
-
-(defun build-farm-build-url (id)
-  "Return URL of a build ID."
-  (build-farm-url "build/" (number-to-string id)))
-
-(defun build-farm-build-log-url (id)
-  "Return URL of the log file of a build ID."
-  (concat (build-farm-build-url id) "/log/raw"))
-
-(cl-defun build-farm-build-latest-api-url
-    (number &key project jobset job system)
-  "Return API URL to receive latest NUMBER of builds."
-  (build-farm-api-url "latestbuilds"
-    `(("nr" . ,number)
-      ("project" . ,project)
-      ("jobset" . ,jobset)
-      ("job" . ,job)
-      ("system" . ,system))))
-
-(defun build-farm-build-queue-api-url (number)
-  "Return API URL to receive the NUMBER of queued builds."
-  (build-farm-api-url "queue"
-    `(("nr" . ,number))))
 
 
 ;;; Filters for processing raw entries

@@ -26,6 +26,7 @@
 (require 'bui)
 (require 'build-farm)
 (require 'build-farm-build)
+(require 'build-farm-url)
 
 (build-farm-define-entry-type jobset
   :search-types '((project . build-farm-jobset-api-url))
@@ -40,18 +41,6 @@
 See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
   (apply #'bui-list-get-display-entries
          'build-farm-jobset search-type args))
-
-
-;;; Defining URLs
-
-(defun build-farm-jobset-url (project jobset)
-  "Return URL of a PROJECT's JOBSET."
-  (build-farm-url "jobset/" project "/" jobset))
-
-(defun build-farm-jobset-api-url (project)
-  "Return API URL for jobsets by PROJECT."
-  (build-farm-api-url "jobsets"
-    `(("project" . ,project))))
 
 
 ;;; Filters for processing raw entries

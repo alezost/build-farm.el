@@ -45,9 +45,9 @@
 
 ;;; Code:
 
-(require 'json)
 (require 'bui)
 (require 'build-farm-utils)
+(require 'build-farm-url)
 
 (defgroup build-farm nil
   "Interface for Hydra and Cuirass build farms used by Guix and Nix."
@@ -70,6 +70,18 @@
 (defun build-farm-job-name-specification (name version)
   "Return job name specification by NAME and VERSION."
   (concat name "-" version))
+
+(defun build-farm-get-entries (entry-type search-type &rest args)
+  "Receive ENTRY-TYPE entries from build farm.
+See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
+  (unless (eq search-type 'fake)
+    (let* ((url         (apply #'build-farm-search-url
+                               entry-type search-type args))
+           (raw-entries (build-farm-receive-data url))
+           (entries     (apply #'build-farm-modify-objects
+                               raw-entries
+                               (build-farm-filters entry-type))))
+      entries)))
 
 (defun build-farm-message (entries search-type &rest _)
   "Display a message after showing ENTRIES of SEARCH-TYPE."
@@ -115,105 +127,6 @@
  :completions-var build-farm-system-types
  :single-reader build-farm-read-system
  :single-prompt "System: ")
-
-
-;;; Defining URLs
-
-(defvar build-farm-url-alist
-  '(("https://hydra.nixos.org" . hydra)
-    ("https://hydra.gnu.org" . hydra)
-    ("https://berlin.guixsd.org" . cuirass))
-  "Alist of URLs and their types of the available build farms.")
-
-(defun build-farm-guess-url ()
-  "Return URL of a build farm that a user probably wants to use."
-  (if (eq 'guix build-farm-preferred-package-manager)
-      "https://hydra.gnu.org"
-    "https://hydra.nixos.org"))
-
-(defun build-farm-urls ()
-  "Return a list of available build farm URLs."
-  (mapcar #'car build-farm-url-alist))
-
-(defcustom build-farm-url (build-farm-guess-url)
-  "URL of the default build farm."
-  :type `(choice ,@(mapcar (lambda (url) (list 'const url))
-                           (build-farm-urls))
-                 (string :tag "Other URL"))
-  :group 'build-farm)
-
-(defun build-farm-read-url ()
-  "Read from minibuffer and return build farm URL."
-  (completing-read "Build farm URL: "
-                   (build-farm-urls)
-                   nil nil nil nil
-                   build-farm-url))
-
-;;;###autoload
-(defun build-farm-set-url (url)
-  "Set `build-farm-url' to URL.
-Interactively, prompt for URL"
-  (interactive (list (build-farm-read-url)))
-  (setq build-farm-url url))
-
-(defun build-farm-type-by-url (url)
-  "Return build farm type by its URL."
-  (or (bui-assoc-value build-farm-url-alist url)
-      (progn
-        (message "Unknown URL: <%s>.
-Consider adding it to `build-farm-url-alist'.
-Arbitrarily choosing `hydra' type for this URL."
-                 url)
-        'hydra)))
-
-(defun build-farm-url (&rest url-parts)
-  "Return build farm URL using URL-PARTS.
-URL-PARTS are added to `build-farm-url'."
-  (apply #'concat build-farm-url "/" url-parts))
-
-(defun build-farm-api-url (type args)
-  "Return URL for receiving data using build farm API.
-TYPE is the name of an allowed method.
-ARGS is alist of (KEY . VALUE) pairs.
-Skip ARG, if VALUE is nil or an empty string."
-  (declare (indent 1))
-  (let* ((fields (mapcar
-                  (lambda (arg)
-                    (pcase arg
-                      (`(,key . ,value)
-                       (unless (or (null value)
-                                   (equal "" value))
-                         (concat (build-farm-hexify key) "="
-                                 (build-farm-hexify value))))
-                      (_ (error "Wrong argument '%s'" arg))))
-                  args))
-         (fields (mapconcat #'identity (delq nil fields) "&")))
-    (build-farm-url "api/" type "?" fields)))
-
-
-;;; Receiving data from build farm
-
-(defun build-farm-receive-data (url)
-  "Return output received from URL and processed with `json-read'."
-  (with-temp-buffer
-    (url-insert-file-contents url)
-    (goto-char (point-min))
-    (let ((json-key-type 'symbol)
-          (json-array-type 'list)
-          (json-object-type 'alist))
-      (json-read))))
-
-(defun build-farm-get-entries (entry-type search-type &rest args)
-  "Receive ENTRY-TYPE entries from build farm.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
-  (unless (eq search-type 'fake)
-    (let* ((url         (apply #'build-farm-search-url
-                               entry-type search-type args))
-           (raw-entries (build-farm-receive-data url))
-           (entries     (apply #'build-farm-modify-objects
-                               raw-entries
-                               (build-farm-filters entry-type))))
-      entries)))
 
 
 ;;; Filters for processing raw entries
