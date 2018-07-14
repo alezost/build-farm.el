@@ -110,6 +110,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
   "List of available projects.")
 
 (build-farm-define-readers
+ :require-match nil
  :completions-var build-farm-projects
  :single-reader build-farm-read-project
  :single-prompt "Project: ")
@@ -125,6 +126,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
  :single-prompt "Job: ")
 
 (build-farm-define-readers
+ :require-match nil
  :completions-var build-farm-system-types
  :single-reader build-farm-read-system
  :single-prompt "System: ")
