@@ -62,15 +62,18 @@ Interactively, prompt for URL"
   (interactive (list (build-farm-read-url)))
   (setq build-farm-url url))
 
-(defun build-farm-type-by-url (url)
-  "Return build farm type by its URL."
-  (or (bui-assoc-value build-farm-url-alist url)
-      (progn
+(defun build-farm-url-type (&optional url)
+  "Return build farm type by its URL (`build-farm-url' by default)."
+  (or (bui-assoc-value build-farm-url-alist
+                       (or url build-farm-url))
+      (let ((type (if (string-match-p "cuirass" url)
+                      'cuirass
+                    'hydra)))
         (message "Unknown URL: <%s>.
 Consider adding it to `build-farm-url-alist'.
-Arbitrarily choosing `hydra' type for this URL."
-                 url)
-        'hydra)))
+Arbitrarily choosing `%S' type for this URL."
+                 url type)
+        type)))
 
 (defun build-farm-url (&rest url-parts)
   "Return build farm URL using URL-PARTS.
