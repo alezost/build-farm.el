@@ -33,15 +33,16 @@
 ;; Set `build-farm-url' variable to choose what build farm you wish to
 ;; use.
 
-;; The following M-x commands display lists of builds and jobsets:
+;; The following M-x commands display builds, jobsets and projects:
 ;;
 ;; - `build-farm-latest-builds'
 ;; - `build-farm-queued-builds'
 ;; - `build-farm-jobsets'
+;; - `build-farm-projects'
 ;;
-;; You can press RET in such a list to see more info on the current
-;; entry.  You can also select several entries in the list (with "m"
-;; key) and press RET to "describe" them.
+;; You can press RET in a list (of builds, etc.) to see more info on the
+;; current entry.  You can also select several entries in the list (with
+;; "m" key) and press RET to "describe" them.
 
 ;;; Code:
 

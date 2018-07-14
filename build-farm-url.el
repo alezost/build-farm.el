@@ -132,6 +132,9 @@ Skip ARG, if VALUE is nil or an empty string."
   (build-farm-api-url "jobsets"
     `(("project" . ,project))))
 
+;; Projects are received from the root build farm page.
+(defalias 'build-farm-project-url #'build-farm-url)
+
 
 ;;; Receiving data from a build farm
 
