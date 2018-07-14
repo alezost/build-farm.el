@@ -123,9 +123,14 @@ Skip ARG, if VALUE is nil or an empty string."
   (build-farm-api-url "queue"
     `(("nr" . ,number))))
 
-(defun build-farm-jobset-url (project jobset)
-  "Return URL of a PROJECT's JOBSET."
-  (build-farm-url "jobset/" project "/" jobset))
+(defun build-farm-jobset-url (project-or-id &optional jobset)
+  "Return URL of a PROJECT's JOBSET.
+If a single argument (PROJECT-OR-ID) is specified, it should have
+a form 'project/jobset'."
+  (let ((jobset-id (if jobset
+                       (concat project-or-id "/" jobset)
+                     project-or-id)))
+    (build-farm-url "jobset/" jobset-id)))
 
 (defun build-farm-jobset-api-url (project)
   "Return API URL for jobsets by PROJECT."

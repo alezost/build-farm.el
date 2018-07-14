@@ -36,6 +36,10 @@
                   (nrfailed . failed)
                   (nrtotal . total)))
 
+(defun build-farm-jobset-id (project jobset)
+  "Return jobset ID from PROJECT name and JOBSET name."
+  (concat project "/" jobset))
+
 (defun build-farm-jobset-get-display (search-type &rest args)
   "Search for jobsets and show results.
 See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
@@ -47,7 +51,9 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defun build-farm-jobset-filter-id (entry)
   "Add 'ID' parameter to 'jobset' ENTRY."
-  (cons `(id . ,(bui-entry-non-void-value entry 'name))
+  (cons `(id . ,(build-farm-jobset-id
+                 (bui-entry-non-void-value entry 'project)
+                 (bui-entry-non-void-value entry 'name)))
         entry))
 
 
@@ -101,9 +107,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defun build-farm-jobset-info-insert-url (entry)
   "Insert URL for the jobset ENTRY."
-  (bui-insert-button (build-farm-jobset-url
-                      (bui-entry-non-void-value entry 'project)
-                      (bui-entry-non-void-value entry 'name))
+  (bui-insert-button (build-farm-jobset-url (bui-entry-id entry))
                      'bui-url)
   (bui-newline))
 
@@ -154,6 +158,23 @@ for all ARGS."
   "Display jobsets of PROJECT."
   (interactive (list (build-farm-read-project)))
   (build-farm-jobset-get-display 'project project))
+
+;; Info returned for multiple jobsets (from "api/jobsets") and for a
+;; single jobset (from "jobset") are completely different!  Compare:
+;;
+;;   (build-farm-receive-data "https://hydra.nixos.org/jobset/hydra/master")
+;;   (build-farm-receive-data "https://hydra.nixos.org/api/jobsets?project=hydra")
+;;
+;; How this duality can be supported?  Maybe make another
+;; "jobset-configuration" interface?  Anyway, `build-farm-jobset'
+;; command is not available yet.
+
+;; (defun build-farm-jobset (project jobset)
+;;   "Display JOBSET of PROJECT."
+;;   (interactive (list (build-farm-read-project)
+;;                      (build-farm-read-jobset project)))
+;;   (build-farm-jobset-get-display
+;;    'id (build-farm-jobset-id project jobset)))
 
 (provide 'build-farm-jobset)
 
