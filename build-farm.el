@@ -60,12 +60,36 @@
   :group 'build-farm
   :group 'faces)
 
-(defvar build-farm-system-types
-  '("x86_64-linux" "i686-linux" "armhf-linux" "mips64el-linux")
-  "List of supported systems.")
+
+;;; System types
 
-(defvar build-farm-job-regexp
-  (concat ".*\\." (regexp-opt build-farm-system-types) "\\'")
+;; XXX I don't like this hard-coding very much.  But it looks like there
+;; is no way to receive system types from a build farm.
+
+(defvar build-farm-guix-system-types
+  '("x86_64-linux" "i686-linux" "armhf-linux" "mips64el-linux")
+  "List of systems supported by Guix build farms.")
+
+(defvar build-farm-nix-system-types
+  '("x86_64-linux" "i686-linux" "x86_64-darwin" "aarch64-linux")
+  "List of systems supported by Nix build farms.")
+
+(defun build-farm-system-types (&optional url)
+  "Return a list of systems supported by URL.
+If URL is nil, use `build-farm-url'."
+  (or url (setq url build-farm-url))
+  (cond ((string-match-p "nix" url)
+         build-farm-nix-system-types)
+        ((or (string-match-p "gnu" url)
+             (string-match-p "guix" url))
+         build-farm-guix-system-types)
+        (t
+         (delete-dups
+          (append build-farm-nix-system-types
+                  build-farm-guix-system-types)))))
+
+
+(defvar build-farm-job-regexp ".+\\.[^.]+"
   "Regexp matching full name of a job (including system).")
 
 (defun build-farm-job-name-specification (name version)
@@ -127,7 +151,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (build-farm-define-readers
  :require-match nil
- :completions-var build-farm-system-types
+ :completions-getter build-farm-system-types
  :single-reader build-farm-read-system
  :single-prompt "System: ")
 
