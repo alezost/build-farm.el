@@ -131,7 +131,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defvar build-farm-jobset-list-default-hint
   '(("\\[build-farm-jobset-list-latest-builds]")
-    " show latest builds for the current jobset;\n"))
+    " show latest builds of the current jobset;\n"))
 
 (defun build-farm-jobset-list-hint ()
   "Return hint string for a jobset-list buffer."
@@ -141,8 +141,9 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defun build-farm-jobset-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current jobset.
-Interactively, prompt for NUMBER.  With prefix argument, prompt
-for all ARGS."
+Interactively, use `build-farm-number-of-builds' variable for
+NUMBER.  With prefix argument, prompt for it and for the other
+ARGS."
   (interactive
    (let ((entry (bui-list-current-entry)))
      (build-farm-build-latest-prompt-args

@@ -334,8 +334,9 @@ Show latest builds for this %s (with prefix, prompt for all parameters)"
 
 (defun build-farm-build-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current job.
-Interactively, prompt for NUMBER.  With prefix argument, prompt
-for all ARGS."
+Interactively, use `build-farm-number-of-builds' variable for
+NUMBER.  With prefix argument, prompt for it and for the other
+ARGS."
   (interactive
    (let ((entry (bui-list-current-entry)))
      (build-farm-build-latest-prompt-args
