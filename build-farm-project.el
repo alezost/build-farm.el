@@ -25,6 +25,7 @@
 (require 'bui)
 (require 'build-farm)
 (require 'build-farm-url)
+(require 'build-farm-build)
 
 (build-farm-define-entry-type project
   :search-types '((all . build-farm-project-url))
@@ -111,6 +112,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
   :hint 'build-farm-project-list-hint)
 
 (let ((map build-farm-project-list-mode-map))
+  (define-key map (kbd "B") 'build-farm-project-list-latest-builds)
   (define-key map (kbd "J") 'build-farm-project-list-jobsets))
 
 (defface build-farm-project-list-disabled
@@ -120,13 +122,22 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defvar build-farm-project-list-default-hint
   '(("\\[build-farm-project-list-jobsets]")
-    " show jobsets of the current project;\n"))
+    " show jobsets of the current project;\n"
+    ("\\[build-farm-project-list-latest-builds]")
+    " show latest builds of the current project;\n"))
 
 (defun build-farm-project-list-hint ()
   "Return hint string for a project-list buffer."
   (bui-format-hints
    build-farm-project-list-default-hint
    (bui-default-hint)))
+
+(defun build-farm-project-list-read-jobset ()
+  "Read jobset for the current project."
+  (build-farm-completing-read
+   "Jobset: "
+   (bui-entry-non-void-value (bui-list-current-entry)
+                             'jobsets)))
 
 (defun build-farm-project-list-get-name (name entry)
   "Return NAME of the project ENTRY.
@@ -142,6 +153,17 @@ Colorize it with an appropriate face if needed."
   "Display jobsets of the current project."
   (interactive)
   (build-farm-jobsets (bui-list-current-id)))
+
+(defun build-farm-project-list-latest-builds (number &rest args)
+  "Display latest NUMBER of builds of the current project.
+Interactively, use `build-farm-number-of-builds' variable for
+NUMBER.  With prefix argument, prompt for it and for the other
+ARGS."
+  (interactive
+   (build-farm-build-latest-prompt-args
+    :project (bui-list-current-id)
+    :jobset  (build-farm-project-list-read-jobset)))
+  (apply #'build-farm-latest-builds number args))
 
 
 ;;; Interactive commands
