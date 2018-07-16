@@ -94,16 +94,11 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 (defun build-farm-jobset-info-insert-project (project entry)
   "Insert PROJECT button for the jobset ENTRY."
   (let ((jobset (bui-entry-non-void-value entry 'name)))
-    (bui-insert-button
-     project 'build-farm-build-project
-     'action (lambda (btn)
-               (let ((args (build-farm-build-latest-prompt-args
-                            :project (button-get btn 'project)
-                            :jobset  (button-get btn 'jobset))))
-                 (apply #'build-farm-build-get-display
-                        'latest args)))
-     'project project
-     'jobset jobset)))
+    (bui-format-insert project 'build-farm-build-info-project)
+    (bui-insert-indent)
+    (build-farm-build-info-insert-builds-button
+     :project project
+     :jobset jobset)))
 
 (defun build-farm-jobset-info-insert-url (entry)
   "Insert URL for the jobset ENTRY."

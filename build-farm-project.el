@@ -97,7 +97,11 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
   (let ((url (build-farm-jobset-url project jobset)))
     (bui-insert-button jobset 'bui-url
                        'url url
-                       'help-echo (format "Browse %s" url))))
+                       'help-echo (format "Browse %s" url)))
+  (bui-insert-indent)
+  (build-farm-build-info-insert-builds-button
+   :project project
+   :jobset jobset))
 
 
 ;;; Project 'list'

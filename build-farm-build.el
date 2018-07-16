@@ -231,54 +231,90 @@ See `build-farm-build-status-alist'."
             build-farm-build-info-insert-url
             (time     format (time))
             (status   format build-farm-build-info-insert-status)
-            (project  format (format build-farm-build-project))
-            (jobset   format (format build-farm-build-jobset))
-            (job      format (format build-farm-build-job))
-            (system   format (format build-farm-build-system))
+            (project  format build-farm-build-info-insert-project)
+            (jobset   format build-farm-build-info-insert-jobset)
+            (job      format build-farm-build-info-insert-job)
+            (system   format build-farm-build-info-insert-system)
             (priority format (format))))
 
 (defface build-farm-build-info-project
-  '((t :inherit link))
+  '((t))
   "Face for project names."
   :group 'build-farm-build-info-faces)
 
 (defface build-farm-build-info-jobset
-  '((t :inherit link))
+  '((t))
   "Face for jobsets."
   :group 'build-farm-build-info-faces)
 
 (defface build-farm-build-info-job
-  '((t :inherit link))
+  '((t))
   "Face for jobs."
   :group 'build-farm-build-info-faces)
 
 (defface build-farm-build-info-system
-  '((t :inherit link))
+  '((t))
   "Face for system names."
   :group 'build-farm-build-info-faces)
 
-(defmacro build-farm-build-define-button (name)
-  "Define `build-farm-build-NAME' button."
-  (let* ((name-str    (symbol-name name))
-         (button-name (intern (concat "build-farm-build-" name-str)))
-         (face-name   (intern (concat "build-farm-build-info-" name-str)))
-         (keyword     (intern (concat ":" name-str))))
-    `(define-button-type ',button-name
-       :supertype 'bui
-       'face ',face-name
-       'help-echo ,(format "\
-Show latest builds for this %s (with prefix, prompt for all parameters)"
-                           name-str)
-       'action (lambda (btn)
-                 (let ((args (build-farm-build-latest-prompt-args
-                              ,keyword (button-label btn))))
-                   (apply #'build-farm-build-get-display
-                          'latest args))))))
+(cl-defun build-farm-build-info-insert-builds-button
+    (&key project jobset job system)
+  "Insert 'Builds' button for PROJECT, JOBSET, JOB, SYSTEM."
+  (bui-insert-action-button
+   "Builds"
+   (lambda (btn)
+     (let ((args (build-farm-build-latest-prompt-args
+                  :project (button-get btn 'project)
+                  :jobset  (button-get btn 'jobset)
+                  :job     (button-get btn 'job)
+                  :system  (button-get btn 'system))))
+       (apply #'build-farm-build-get-display
+              'latest args)))
+   (concat "Show latest builds"
+           (let ((thing (cond (job "job")
+                              (system "system")
+                              (jobset "jobset")
+                              (project "project"))))
+             (if thing
+                 (concat " for this " thing)
+               ""))
+           " (with prefix, prompt for all parameters)")
+   'project project
+   'jobset jobset
+   'job job
+   'system system))
 
-(build-farm-build-define-button project)
-(build-farm-build-define-button jobset)
-(build-farm-build-define-button job)
-(build-farm-build-define-button system)
+(defun build-farm-build-info-insert-button (entry)
+  "Insert 'Builds' button for build ENTRY at point."
+  (build-farm-build-info-insert-builds-button
+   :project (bui-entry-non-void-value entry 'project)
+   :jobset  (bui-entry-non-void-value entry 'jobset)
+   :job     (bui-entry-non-void-value entry 'job)
+   :system  (bui-entry-non-void-value entry 'system)))
+
+(defun build-farm-build-info-insert-project (project entry)
+  "Insert PROJECT for build ENTRY at point."
+  (bui-format-insert project 'build-farm-build-info-project)
+  (bui-insert-indent)
+  (build-farm-build-info-insert-button entry))
+
+(defun build-farm-build-info-insert-jobset (jobset entry)
+  "Insert JOBSET for build ENTRY at point."
+  (bui-format-insert jobset 'build-farm-build-info-jobset)
+  (bui-insert-indent)
+  (build-farm-build-info-insert-button entry))
+
+(defun build-farm-build-info-insert-job (job entry)
+  "Insert JOB for build ENTRY at point."
+  (bui-format-insert job 'build-farm-build-info-job)
+  (bui-insert-indent)
+  (build-farm-build-info-insert-button entry))
+
+(defun build-farm-build-info-insert-system (system entry)
+  "Insert SYSTEM for build ENTRY at point."
+  (bui-format-insert system 'build-farm-build-info-system)
+  (bui-insert-indent)
+  (build-farm-build-info-insert-button entry))
 
 (defun build-farm-build-info-insert-url (entry)
   "Insert URL for the build ENTRY."
@@ -341,7 +377,7 @@ ARGS."
    (let ((entry (bui-list-current-entry)))
      (build-farm-build-latest-prompt-args
       :project (bui-entry-non-void-value entry 'project)
-      :jobset  (bui-entry-non-void-value entry 'name)
+      :jobset  (bui-entry-non-void-value entry 'jobset)
       :job     (bui-entry-non-void-value entry 'job)
       :system  (bui-entry-non-void-value entry 'system))))
   (apply #'build-farm-latest-builds number args))
