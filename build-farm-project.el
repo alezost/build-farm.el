@@ -94,7 +94,8 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defun build-farm-project-info-insert-jobset (project jobset)
   "Insert info about JOBSET of the PROJECT at point."
-  (let ((url (build-farm-jobset-url project jobset)))
+  (let ((url (build-farm-jobset-url :project project
+                                    :jobset jobset)))
     (bui-insert-button jobset 'bui-url
                        'url url
                        'help-echo (format "Browse %s" url)))

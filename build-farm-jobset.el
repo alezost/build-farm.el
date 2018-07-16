@@ -102,7 +102,8 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
 
 (defun build-farm-jobset-info-insert-url (entry)
   "Insert URL for the jobset ENTRY."
-  (bui-insert-button (build-farm-jobset-url (bui-entry-id entry))
+  (bui-insert-button (build-farm-jobset-url
+                      :jobset-id (bui-entry-id entry))
                      'bui-url)
   (bui-newline))
 
