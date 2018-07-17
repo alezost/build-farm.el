@@ -36,12 +36,6 @@
   ;; and vice versa.  So `hidden' is not going to be used anywhere.
   :filter-boolean-params '(enabled))
 
-(defun build-farm-project-get-display (search-type &rest args)
-  "Search for projects and show results.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
-  (apply #'bui-list-get-display-entries
-         'build-farm-project search-type args))
-
 
 ;;; Project 'info'
 
@@ -177,7 +171,7 @@ ARGS."
 (defun build-farm-projects ()
   "Display build farm projects."
   (interactive)
-  (build-farm-project-get-display 'all))
+  (build-farm-get-display 'project 'all))
 
 (provide 'build-farm-project)
 

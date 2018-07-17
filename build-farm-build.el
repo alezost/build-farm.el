@@ -45,12 +45,6 @@ for the number of builds."
   :type 'integer
   :group 'build-farm-build)
 
-(defun build-farm-build-get-display (search-type &rest args)
-  "Search for builds and show results.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
-  (apply #'bui-list-get-display-entries
-         'build-farm-build search-type args))
-
 (cl-defun build-farm-build-latest-prompt-args (&key project jobset
                                                     job system)
   "Prompt for and return a list of 'latest builds' arguments."
@@ -268,8 +262,8 @@ See `build-farm-build-status-alist'."
                   :jobset  (button-get btn 'jobset)
                   :job     (button-get btn 'job)
                   :system  (button-get btn 'system))))
-       (apply #'build-farm-build-get-display
-              'latest args)))
+       (apply #'build-farm-get-display
+              'build 'latest args)))
    (concat "Show latest builds"
            (let ((thing (cond (job "job")
                               (system "system")
@@ -398,8 +392,8 @@ Interactively, use `build-farm-number-of-builds' variable for
 NUMBER.  With prefix argument, prompt for it and for the other
 ARGS."
   (interactive (build-farm-build-latest-prompt-args))
-  (apply #'build-farm-build-get-display
-         'latest number args))
+  (apply #'build-farm-get-display
+         'build 'latest number args))
 
 ;;;###autoload
 (defun build-farm-queued-builds (number)
@@ -412,7 +406,7 @@ NUMBER.  With prefix argument, prompt for it."
              (read-number "Number of queued builds: "
                           build-farm-number-of-builds)
            build-farm-number-of-builds)))
-  (build-farm-build-get-display 'queue number))
+  (build-farm-get-display 'build 'queue number))
 
 (provide 'build-farm-build)
 

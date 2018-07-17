@@ -108,6 +108,14 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
                                (build-farm-filters entry-type))))
       entries)))
 
+(defun build-farm-get-display (entry-type search-type &rest args)
+  "Search for ENTRY-TYPE entries and show results.
+ENTRY-TYPE should be `build', `jobset', etc.
+See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
+  (apply #'bui-list-get-display-entries
+         (build-farm-symbol entry-type)
+         search-type args))
+
 (defun build-farm-message (entries search-type &rest _)
   "Display a message after showing ENTRIES of SEARCH-TYPE."
   ;; XXX Add more messages maybe.

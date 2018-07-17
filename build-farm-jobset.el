@@ -40,12 +40,6 @@
   "Return jobset ID from PROJECT name and JOBSET name."
   (concat project "/" jobset))
 
-(defun build-farm-jobset-get-display (search-type &rest args)
-  "Search for jobsets and show results.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
-  (apply #'bui-list-get-display-entries
-         'build-farm-jobset search-type args))
-
 
 ;;; Filters for processing raw entries
 
@@ -154,7 +148,7 @@ ARGS."
 (defun build-farm-jobsets (project)
   "Display jobsets of PROJECT."
   (interactive (list (build-farm-read-project)))
-  (build-farm-jobset-get-display 'project project))
+  (build-farm-get-display 'jobset 'project project))
 
 ;; Info returned for multiple jobsets (from "api/jobsets") and for a
 ;; single jobset (from "jobset") are completely different!  Compare:
