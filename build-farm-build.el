@@ -84,14 +84,25 @@ for the number of builds."
           :job     job
           :system  system)))
 
-(declare-function guix-build-log-find-file "guix-build-log" (file))
+(declare-function guix-build-log-mode "guix-build-log" t)
 
 (defun build-farm-build-view-log (id &optional root-url)
   "View build log of a build ID."
-  (require 'guix-build-log)
-  (guix-build-log-find-file
-   (build-farm-build-log-url
-    id :root-url (or root-url (build-farm-current-url)))))
+  (let ((pkg-manager (build-farm-url-package-manager root-url))
+        (url (or root-url (build-farm-current-url))))
+    (if (eq pkg-manager 'nix)
+        ;; Logs from hydra.nixos.org (which are actually kept on
+        ;; amazonaws) are stored in a compressed form that is not
+        ;; supported by Emacs yet: a raw log page returns
+        ;; "Content-Encoding: br" heading ("Brotli" compression).  So
+        ;; instead of opening the log in Emacs (it would be displayed as
+        ;; an arbitrary binary data), open it in a browser.
+        (browse-url (build-farm-build-log-url id :root-url url))
+      (browse-url-emacs (build-farm-build-log-url
+                         id :root-url url :raw t))
+      (when (and (eq pkg-manager 'guix)
+                 (require 'guix-build-log nil t))
+        (guix-build-log-mode)))))
 
 
 ;;; Filters for processing raw entries

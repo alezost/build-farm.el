@@ -119,11 +119,13 @@ Skip ARG, if VALUE is nil or an empty string."
 See `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-url root-url "build/" (number-to-string id)))
 
-(cl-defun build-farm-build-log-url (id &key root-url)
-  "Return URL of the log file of a build ID.
+(cl-defun build-farm-build-log-url (id &key root-url raw)
+  "Return URL of the build log of a build ID.
+If RAW is non-nil, return url of the raw build log file.
 See `build-farm-url' for the meaning of ROOT-URL."
   (concat (build-farm-build-url id :root-url root-url)
-          "/log/raw"))
+          "/log"
+          (if raw "/raw" "")))
 
 (cl-defun build-farm-build-latest-api-url
     (number &key root-url project jobset job system)
