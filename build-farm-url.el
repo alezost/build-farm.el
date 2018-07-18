@@ -77,6 +77,18 @@ Arbitrarily choosing `%S' type for this URL."
                  url type)
         type)))
 
+(defun build-farm-url-package-manager (&optional url)
+  "Return a package manager for the build farm URL.
+The returned value is either `nix' or `guix' symbols or nil, if
+the package manager cannot be determined.
+If URL is nil, use `build-farm-url'."
+  (or url (setq url build-farm-url))
+  (cond ((or (string-match-p (regexp-opt '("gnu" "guix")) url)
+             (eq 'cuirass (build-farm-url-type url)))
+         'guix)
+        ((string-match-p "nix" url)
+         'nix)))
+
 (defun build-farm-url (&optional root-url &rest url-parts)
   "Return build farm ROOT-URL with URL-PARTS concatenated to it.
 If ROOT-URL is nil, `build-farm-url' variable is used."

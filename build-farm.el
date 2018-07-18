@@ -77,16 +77,12 @@
 (defun build-farm-system-types (&optional url)
   "Return a list of systems supported by URL.
 If URL is nil, use `build-farm-url'."
-  (or url (setq url build-farm-url))
-  (cond ((string-match-p "nix" url)
-         build-farm-nix-system-types)
-        ((or (string-match-p "gnu" url)
-             (string-match-p "guix" url))
-         build-farm-guix-system-types)
-        (t
-         (delete-dups
-          (append build-farm-nix-system-types
-                  build-farm-guix-system-types)))))
+  (cl-case (build-farm-url-package-manager url)
+    (nix  build-farm-nix-system-types)
+    (guix build-farm-guix-system-types)
+    (t    (delete-dups
+           (append build-farm-nix-system-types
+                   build-farm-guix-system-types)))))
 
 
 (defvar build-farm-job-regexp ".+\\.[^.]+"
