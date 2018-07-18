@@ -97,6 +97,7 @@
 (defun build-farm-jobset-info-insert-url (entry)
   "Insert URL for the jobset ENTRY."
   (bui-insert-button (build-farm-jobset-url
+                      :root-url (build-farm-current-url)
                       :jobset-id (bui-entry-id entry))
                      'bui-url)
   (bui-newline))
@@ -139,7 +140,8 @@ ARGS."
      (build-farm-build-latest-prompt-args
       :project (bui-entry-non-void-value entry 'project)
       :jobset  (bui-entry-non-void-value entry 'name))))
-  (apply #'build-farm-latest-builds number args))
+  (apply #'build-farm-get-display
+         (build-farm-current-url) 'build 'latest number args))
 
 
 ;;; Interactive commands
@@ -148,7 +150,7 @@ ARGS."
 (defun build-farm-jobsets (project)
   "Display jobsets of PROJECT."
   (interactive (list (build-farm-read-project)))
-  (build-farm-get-display 'jobset 'project project))
+  (build-farm-get-display build-farm-url 'jobset 'project project))
 
 ;; Info returned for multiple jobsets (from "api/jobsets") and for a
 ;; single jobset (from "jobset") are completely different!  Compare:

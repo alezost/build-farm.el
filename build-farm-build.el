@@ -86,10 +86,12 @@ for the number of builds."
 
 (declare-function guix-build-log-find-file "guix-build-log" (file))
 
-(defun build-farm-build-view-log (id)
+(defun build-farm-build-view-log (id &optional root-url)
   "View build log of a build ID."
   (require 'guix-build-log)
-  (guix-build-log-find-file (build-farm-build-log-url id)))
+  (guix-build-log-find-file
+   (build-farm-build-log-url
+    id :root-url (or root-url (build-farm-current-url)))))
 
 
 ;;; Filters for processing raw entries
@@ -263,6 +265,7 @@ See `build-farm-build-status-alist'."
                   :job     (button-get btn 'job)
                   :system  (button-get btn 'system))))
        (apply #'build-farm-get-display
+              (build-farm-current-url)
               'build 'latest args)))
    (concat "Show latest builds"
            (let ((thing (cond (job "job")
@@ -312,7 +315,9 @@ See `build-farm-build-status-alist'."
 
 (defun build-farm-build-info-insert-url (entry)
   "Insert URL for the build ENTRY."
-  (bui-insert-button (build-farm-build-url (bui-entry-id entry))
+  (bui-insert-button (build-farm-build-url
+                      (bui-entry-id entry)
+                      :root-url (build-farm-current-url))
                      'bui-url)
   (when (build-farm-build-finished? entry)
     (bui-insert-indent)
@@ -374,7 +379,8 @@ ARGS."
       :jobset  (bui-entry-non-void-value entry 'jobset)
       :job     (bui-entry-non-void-value entry 'job)
       :system  (bui-entry-non-void-value entry 'system))))
-  (apply #'build-farm-latest-builds number args))
+  (apply #'build-farm-get-display
+         (build-farm-current-url) 'build 'latest number args))
 
 (defun build-farm-build-list-view-log ()
   "View build log of the current build."
@@ -393,7 +399,7 @@ NUMBER.  With prefix argument, prompt for it and for the other
 ARGS."
   (interactive (build-farm-build-latest-prompt-args))
   (apply #'build-farm-get-display
-         'build 'latest number args))
+         build-farm-url 'build 'latest number args))
 
 ;;;###autoload
 (defun build-farm-queued-builds (number)
@@ -406,7 +412,7 @@ NUMBER.  With prefix argument, prompt for it."
              (read-number "Number of queued builds: "
                           build-farm-number-of-builds)
            build-farm-number-of-builds)))
-  (build-farm-get-display 'build 'queue number))
+  (build-farm-get-display build-farm-url 'build 'queue number))
 
 (provide 'build-farm-build)
 

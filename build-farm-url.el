@@ -23,6 +23,7 @@
 ;;; Code:
 
 (require 'url-handlers)
+(require 'url-expand)
 (require 'json)
 (require 'build-farm-utils)
 
@@ -76,17 +77,18 @@ Arbitrarily choosing `%S' type for this URL."
                  url type)
         type)))
 
-(defun build-farm-url (&rest url-parts)
-  "Return build farm URL using URL-PARTS.
-URL-PARTS are added to `build-farm-url'."
-  (apply #'concat build-farm-url "/" url-parts))
+(defun build-farm-url (&optional root-url &rest url-parts)
+  "Return build farm ROOT-URL with URL-PARTS concatenated to it.
+If ROOT-URL is nil, `build-farm-url' variable is used."
+  (url-expand-file-name (mapconcat #'identity url-parts "")
+                        (or root-url build-farm-url)))
 
-(defun build-farm-api-url (type args)
+(cl-defun build-farm-api-url (type args &key root-url)
   "Return URL for receiving data using build farm API.
+See `build-farm-url' for the meaning of ROOT-URL.
 TYPE is the name of an allowed method.
 ARGS is alist of (KEY . VALUE) pairs.
 Skip ARG, if VALUE is nil or an empty string."
-  (declare (indent 1))
   (let* ((fields (mapcar
                   (lambda (arg)
                     (pcase arg
@@ -98,46 +100,63 @@ Skip ARG, if VALUE is nil or an empty string."
                       (_ (error "Wrong argument '%s'" arg))))
                   args))
          (fields (mapconcat #'identity (delq nil fields) "&")))
-    (build-farm-url "api/" type "?" fields)))
+    (build-farm-url root-url "api/" type "?" fields)))
 
-(defun build-farm-build-url (id)
-  "Return URL of a build ID."
-  (build-farm-url "build/" (number-to-string id)))
+(cl-defun build-farm-build-url (id &key root-url)
+  "Return URL of a build ID.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-url root-url "build/" (number-to-string id)))
 
-(defun build-farm-build-log-url (id)
-  "Return URL of the log file of a build ID."
-  (concat (build-farm-build-url id) "/log/raw"))
+(cl-defun build-farm-build-log-url (id &key root-url)
+  "Return URL of the log file of a build ID.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (concat (build-farm-build-url id :root-url root-url)
+          "/log/raw"))
 
 (cl-defun build-farm-build-latest-api-url
-    (number &key project jobset job system)
-  "Return API URL to receive latest NUMBER of builds."
-  (build-farm-api-url "latestbuilds"
-    `(("nr" . ,number)
-      ("project" . ,project)
-      ("jobset" . ,jobset)
-      ("job" . ,job)
-      ("system" . ,system))))
+    (number &key root-url project jobset job system)
+  "Return API URL to receive latest NUMBER of builds.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-api-url
+   "latestbuilds"
+   `(("nr" . ,number)
+     ("project" . ,project)
+     ("jobset" . ,jobset)
+     ("job" . ,job)
+     ("system" . ,system))
+   :root-url root-url))
 
-(defun build-farm-build-queue-api-url (number)
-  "Return API URL to receive the NUMBER of queued builds."
-  (build-farm-api-url "queue"
-    `(("nr" . ,number))))
+(cl-defun build-farm-build-queue-api-url (number &key root-url)
+  "Return API URL to receive the NUMBER of queued builds.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-api-url
+   "queue"
+   `(("nr" . ,number))
+   :root-url root-url))
 
-(cl-defun build-farm-jobset-url (&key project jobset jobset-id)
+(cl-defun build-farm-jobset-url (&key root-url project jobset jobset-id)
   "Return URL of a PROJECT's JOBSET.
-You should specify either a single JOBSET-ID argument (it should have
-a form 'project/jobset') or PROJECT and JOBSET arguments."
-  (build-farm-url "jobset/"
+Above that, you should specify either a single JOBSET-ID
+argument (it should have a form 'project/jobset') or PROJECT and
+JOBSET arguments.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-url root-url "/jobset/"
                   (or jobset-id
                       (concat project "/" jobset))))
 
-(defun build-farm-jobset-api-url (project)
-  "Return API URL for jobsets by PROJECT."
-  (build-farm-api-url "jobsets"
-    `(("project" . ,project))))
+(cl-defun build-farm-jobset-api-url (project &key root-url)
+  "Return API URL for jobsets by PROJECT.
+See `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-api-url
+   "jobsets"
+   `(("project" . ,project))
+   :root-url root-url))
 
-;; Projects are received from the root build farm page.
-(defalias 'build-farm-project-url #'build-farm-url)
+(cl-defun build-farm-project-url (&key root-url)
+  "Return URL with bulid farm projects.
+See `build-farm-url' for the meaning of ROOT-URL."
+  ;; Projects are received from the root build farm page.
+  (build-farm-url root-url))
 
 
 ;;; Receiving data from a build farm

@@ -88,8 +88,10 @@
 
 (defun build-farm-project-info-insert-jobset (project jobset)
   "Insert info about JOBSET of the PROJECT at point."
-  (let ((url (build-farm-jobset-url :project project
-                                    :jobset jobset)))
+  (let ((url (build-farm-jobset-url
+              :root-url (build-farm-current-url)
+              :project project
+              :jobset jobset)))
     (bui-insert-button jobset 'bui-url
                        'url url
                        'help-echo (format "Browse %s" url)))
@@ -151,7 +153,8 @@ Colorize it with an appropriate face if needed."
 (defun build-farm-project-list-jobsets ()
   "Display jobsets of the current project."
   (interactive)
-  (build-farm-jobsets (bui-list-current-id)))
+  (build-farm-get-display (build-farm-current-url)
+                          'jobset 'project (bui-list-current-id)))
 
 (defun build-farm-project-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current project.
@@ -162,7 +165,8 @@ ARGS."
    (build-farm-build-latest-prompt-args
     :project (bui-list-current-id)
     :jobset  (build-farm-project-list-read-jobset)))
-  (apply #'build-farm-latest-builds number args))
+  (apply #'build-farm-get-display
+         (build-farm-current-url) 'build 'latest number args))
 
 
 ;;; Interactive commands
@@ -171,7 +175,7 @@ ARGS."
 (defun build-farm-projects ()
   "Display build farm projects."
   (interactive)
-  (build-farm-get-display 'project 'all))
+  (build-farm-get-display build-farm-url 'project 'all))
 
 (provide 'build-farm-project)
 

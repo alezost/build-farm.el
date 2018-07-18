@@ -96,27 +96,35 @@ If URL is nil, use `build-farm-url'."
   "Return job name specification by NAME and VERSION."
   (concat name "-" version))
 
-(defun build-farm-get-entries (entry-type search-type &rest args)
+(bui-define-current-args-accessors build-farm-current
+  url search-type search-args)
+
+(defun build-farm-get-entries (root-url entry-type search-type
+                                        &rest args)
   "Receive ENTRY-TYPE entries from build farm.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
+See `build-farm-search-url' for the meaning of ROOT-URL,
+SEARCH-TYPE and ARGS."
   (unless (eq search-type 'fake)
     (let* ((url         (apply #'build-farm-search-url
-                               entry-type search-type args))
+                               root-url entry-type search-type args))
            (raw-entries (build-farm-receive-data url))
            (entries     (apply #'build-farm-modify-objects
                                raw-entries
                                (build-farm-filters entry-type))))
       entries)))
 
-(defun build-farm-get-display (entry-type search-type &rest args)
+(defun build-farm-get-display (root-url entry-type search-type
+                                        &rest args)
   "Search for ENTRY-TYPE entries and show results.
 ENTRY-TYPE should be `build', `jobset', etc.
-See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
+See `build-farm-search-url' for the meaning of ROOT-URL,
+SEARCH-TYPE and ARGS."
   (apply #'bui-list-get-display-entries
          (build-farm-symbol entry-type)
+         root-url
          search-type args))
 
-(defun build-farm-message (entries search-type &rest _)
+(defun build-farm-message (entries _root-url search-type &rest _)
   "Display a message after showing ENTRIES of SEARCH-TYPE."
   ;; XXX Add more messages maybe.
   (when (null entries)
@@ -131,7 +139,7 @@ See `build-farm-search-url' for the meaning of SEARCH-TYPE and ARGS."
    (bui-current-entry-type) 'info
    ;; Hydra and Cuirass do not provide an API to receive builds/jobsets
    ;; by IDs/names, so we use a 'fake' search type.
-   '(fake)
+   (list (build-farm-current-url) 'fake)
    'add))
 
 
@@ -200,14 +208,18 @@ Where '...' is made from SYMBOLS."
   "Return SYMBOL's value for ENTRY-TYPE."
   (symbol-value (build-farm-symbol entry-type symbol)))
 
-(defun build-farm-search-url (entry-type search-type &rest args)
+(defun build-farm-search-url (root-url entry-type search-type
+                                       &rest args)
   "Return URL to receive ENTRY-TYPE entries from build farm.
+ROOT-URL is the url of the build farm (from `build-farm-url-alist').
 SEARCH-TYPE is one of the types defined by `build-farm-define-entry-type'.
 ARGS are passed to the according URL function."
   (apply (bui-assq-value (build-farm-symbol-value
                           entry-type 'search-types)
                          search-type)
-         args))
+         ;; `:root-url' should be the last argument because `args' may
+         ;; contain non-keyword arguments.
+         (append args `(:root-url ,root-url))))
 
 (defun build-farm-filters (entry-type)
   "Return a list of filters for ENTRY-TYPE."
@@ -311,13 +323,13 @@ Run `build-farm-filter-names' with `%S' variable."
                  (setq ,filters-var
                        (cons ',filter-names-fun ,filters-var)))))
 
-         (defun ,get-fun (search-type &rest args)
+         (defun ,get-fun (root-url search-type &rest args)
            ,(format "\
 Receive '%s' entries.
 See `build-farm-get-entries' for details."
                     entry-type-str)
            (apply #'build-farm-get-entries
-                  ',entry-type search-type args))
+                  root-url ',entry-type search-type args))
 
          (bui-define-groups ,full-entry-type
            :parent-group build-farm
