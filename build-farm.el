@@ -76,7 +76,7 @@
 
 (defun build-farm-system-types (&optional url)
   "Return a list of systems supported by URL.
-If URL is nil, use `build-farm-url'."
+If URL is nil, use variable `build-farm-url'."
   (cl-case (build-farm-url-package-manager url)
     (nix  build-farm-nix-system-types)
     (guix build-farm-guix-system-types)

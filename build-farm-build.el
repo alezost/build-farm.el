@@ -87,7 +87,7 @@ for the number of builds."
 (declare-function guix-build-log-mode "guix-build-log" t)
 
 (defun build-farm-build-view-log (id &optional root-url)
-  "View build log of a build ID."
+  "View build log of a build ID from ROOT-URL."
   (let ((pkg-manager (build-farm-url-package-manager root-url))
         (url (or root-url (build-farm-current-url))))
     (if (eq pkg-manager 'nix)

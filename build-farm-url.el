@@ -59,13 +59,14 @@
 
 ;;;###autoload
 (defun build-farm-set-url (url)
-  "Set `build-farm-url' to URL.
-Interactively, prompt for URL"
+  "Set variable `build-farm-url' to URL.
+Interactively, prompt for URL."
   (interactive (list (build-farm-read-url)))
   (setq build-farm-url url))
 
 (defun build-farm-url-type (&optional url)
-  "Return build farm type by its URL (`build-farm-url' by default)."
+  "Return build farm type by its URL.
+If URL is nil, use variable `build-farm-url'."
   (or (bui-assoc-value build-farm-url-alist
                        (or url build-farm-url))
       (let ((type (if (string-match-p "cuirass" url)
@@ -81,7 +82,7 @@ Arbitrarily choosing `%S' type for this URL."
   "Return a package manager for the build farm URL.
 The returned value is either `nix' or `guix' symbols or nil, if
 the package manager cannot be determined.
-If URL is nil, use `build-farm-url'."
+If URL is nil, use variable `build-farm-url'."
   (or url (setq url build-farm-url))
   (cond ((or (string-match-p (regexp-opt '("gnu" "guix")) url)
              (eq 'cuirass (build-farm-url-type url)))
@@ -91,13 +92,13 @@ If URL is nil, use `build-farm-url'."
 
 (defun build-farm-url (&optional root-url &rest url-parts)
   "Return build farm ROOT-URL with URL-PARTS concatenated to it.
-If ROOT-URL is nil, `build-farm-url' variable is used."
+If ROOT-URL is nil, use variable `build-farm-url'."
   (url-expand-file-name (mapconcat #'identity url-parts "")
                         (or root-url build-farm-url)))
 
 (cl-defun build-farm-api-url (type args &key root-url)
   "Return URL for receiving data using build farm API.
-See `build-farm-url' for the meaning of ROOT-URL.
+See function `build-farm-url' for the meaning of ROOT-URL.
 TYPE is the name of an allowed method.
 ARGS is alist of (KEY . VALUE) pairs.
 Skip ARG, if VALUE is nil or an empty string."
@@ -116,13 +117,13 @@ Skip ARG, if VALUE is nil or an empty string."
 
 (cl-defun build-farm-build-url (id &key root-url)
   "Return URL of a build ID.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-url root-url "build/" (number-to-string id)))
 
 (cl-defun build-farm-build-log-url (id &key root-url raw)
   "Return URL of the build log of a build ID.
 If RAW is non-nil, return url of the raw build log file.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (concat (build-farm-build-url id :root-url root-url)
           "/log"
           (if raw "/raw" "")))
@@ -130,7 +131,7 @@ See `build-farm-url' for the meaning of ROOT-URL."
 (cl-defun build-farm-build-latest-api-url
     (number &key root-url project jobset job system)
   "Return API URL to receive latest NUMBER of builds.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-api-url
    "latestbuilds"
    `(("nr" . ,number)
@@ -142,7 +143,7 @@ See `build-farm-url' for the meaning of ROOT-URL."
 
 (cl-defun build-farm-build-queue-api-url (number &key root-url)
   "Return API URL to receive the NUMBER of queued builds.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-api-url
    "queue"
    `(("nr" . ,number))
@@ -153,14 +154,14 @@ See `build-farm-url' for the meaning of ROOT-URL."
 Above that, you should specify either a single JOBSET-ID
 argument (it should have a form 'project/jobset') or PROJECT and
 JOBSET arguments.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-url root-url "/jobset/"
                   (or jobset-id
                       (concat project "/" jobset))))
 
 (cl-defun build-farm-jobset-api-url (project &key root-url)
   "Return API URL for jobsets by PROJECT.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-api-url
    "jobsets"
    `(("project" . ,project))
@@ -168,7 +169,7 @@ See `build-farm-url' for the meaning of ROOT-URL."
 
 (cl-defun build-farm-project-url (&key root-url)
   "Return URL with bulid farm projects.
-See `build-farm-url' for the meaning of ROOT-URL."
+See function `build-farm-url' for the meaning of ROOT-URL."
   ;; Projects are received from the root build farm page.
   (build-farm-url root-url))
 
