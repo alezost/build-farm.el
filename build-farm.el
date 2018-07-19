@@ -85,6 +85,33 @@ If URL is nil, use variable `build-farm-url'."
                    build-farm-guix-system-types)))))
 
 
+;;; Cache
+
+(defvar build-farm-cache nil
+  "Cache of various data received from build farms.")
+
+(defun build-farm-cache-get (url data-type)
+  "Return DATA-TYPE data from the cache of build farm URL."
+  (bui-assoc-value build-farm-cache url data-type))
+
+(defun build-farm-cache-set (url data-type data)
+  "Add DATA-TYPE DATA to the cache of build farm URL."
+  (let ((data-assoc (cons data-type data))
+        (url-assoc (assoc url build-farm-cache)))
+    (if url-assoc
+        (setf (cdr url-assoc)
+              (cons data-assoc (cdr url-assoc)))
+      (setq build-farm-cache
+            (cons (list url data-assoc)
+                  build-farm-cache)))))
+
+(defun build-farm-clear-cache ()
+  "Remove all cached data received from the build farms."
+  (interactive)
+  (setq build-farm-cache nil)
+  (message "The build farm cache has been cleared."))
+
+
 (defvar build-farm-job-regexp ".+\\.[^.]+"
   "Regexp matching full name of a job (including system).")
 
@@ -97,17 +124,32 @@ If URL is nil, use variable `build-farm-url'."
 
 (defun build-farm-get-entries (root-url entry-type search-type
                                         &rest args)
-  "Receive ENTRY-TYPE entries from build farm.
+  "Receive ENTRY-TYPE entries from cache or build farm.
 See `build-farm-search-url' for the meaning of ROOT-URL,
 SEARCH-TYPE and ARGS."
   (unless (eq search-type 'fake)
-    (let* ((url         (apply #'build-farm-search-url
-                               root-url entry-type search-type args))
-           (raw-entries (build-farm-receive-data url))
-           (entries     (apply #'build-farm-modify-objects
-                               raw-entries
-                               (build-farm-filters entry-type))))
-      entries)))
+    (if (eq entry-type 'project)
+        (or (build-farm-cache-get root-url 'projects)
+            (let ((entries (apply #'build-farm-get-entries-1
+                                  root-url entry-type search-type args)))
+              (build-farm-cache-set root-url 'projects entries)
+              (build-farm-cache-set root-url 'projects-received t)
+              entries))
+      (apply #'build-farm-get-entries-1
+             root-url entry-type search-type args))))
+
+(defun build-farm-get-entries-1 (root-url entry-type search-type
+                                          &rest args)
+  "Receive ENTRY-TYPE entries from build farm.
+See `build-farm-search-url' for the meaning of ROOT-URL,
+SEARCH-TYPE and ARGS."
+  (let* ((url         (apply #'build-farm-search-url
+                             root-url entry-type search-type args))
+         (raw-entries (build-farm-receive-data url))
+         (entries     (apply #'build-farm-modify-objects
+                             raw-entries
+                             (build-farm-filters entry-type))))
+    entries))
 
 (defun build-farm-get-display (root-url entry-type search-type
                                         &rest args)
