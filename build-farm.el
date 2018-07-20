@@ -151,6 +151,21 @@ SEARCH-TYPE and ARGS."
                              (build-farm-filters entry-type))))
     entries))
 
+(defun build-farm-get-project-entries-once (&optional url)
+  "Return project entries for URL build farm.
+If projects have already been received, return them from
+`build-farm-cache'.  If URL is nil, use variable
+`build-farm-url'."
+  (or url (setq url build-farm-url))
+  (if (build-farm-cache-get url 'projects-received)
+      (build-farm-cache-get url 'projects)
+    ;; Cuirass does not support API for projects, so we will
+    ;; have an error from `build-farm-receive-data'.
+    (with-demoted-errors "Error: %S"
+      (require 'build-farm-project)
+      (build-farm-cache-set url 'projects-received t)
+      (build-farm-get-entries url 'project 'all))))
+
 (defun build-farm-get-display (root-url entry-type search-type
                                         &rest args)
   "Search for ENTRY-TYPE entries and show results.
@@ -183,13 +198,14 @@ SEARCH-TYPE and ARGS."
 
 ;;; Readers
 
-(defvar build-farm-projects
-  '("gnu" "guix")
-  "List of available projects.")
+(defun build-farm-project-names (&optional url)
+  "Return projects for URL build farm."
+  (mapcar #'bui-entry-id
+          (build-farm-get-project-entries-once url)))
 
 (build-farm-define-readers
  :require-match nil
- :completions-var build-farm-projects
+ :completions-getter build-farm-project-names
  :single-reader build-farm-read-project
  :single-prompt "Project: ")
 
