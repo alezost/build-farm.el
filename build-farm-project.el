@@ -177,6 +177,12 @@ ARGS."
   (interactive)
   (build-farm-get-display build-farm-url 'project 'all))
 
+;;;###autoload
+(defun build-farm-project (project)
+  "Display build farm PROJECT."
+  (interactive (list (build-farm-read-project)))
+  (build-farm-get-display build-farm-url 'project 'id project))
+
 (provide 'build-farm-project)
 
 ;;; build-farm-project.el ends here

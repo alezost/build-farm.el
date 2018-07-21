@@ -39,6 +39,7 @@
 ;; - `build-farm-queued-builds'
 ;; - `build-farm-jobsets'
 ;; - `build-farm-projects'
+;; - `build-farm-project'
 ;;
 ;; You can press RET in a list (of builds, etc.) to see more info on the
 ;; current entry.  You can also select several entries in the list (with
@@ -152,12 +153,16 @@ See `build-farm-search-url' for the meaning of ROOT-URL,
 SEARCH-TYPE and ARGS."
   (unless (eq search-type 'fake)
     (if (eq entry-type 'project)
-        (or (build-farm-cache-get root-url 'projects)
-            (let ((entries (apply #'build-farm-get-entries-1
-                                  root-url entry-type search-type args)))
-              (build-farm-cache-set root-url 'projects entries)
-              (build-farm-cache-set root-url 'projects-received t)
-              entries))
+        (if (memq search-type '(id name))
+            (bui-entries-by-ids
+             (build-farm-get-entries root-url 'project 'all)
+             args)
+          (or (build-farm-cache-get root-url 'projects)
+              (let ((entries (apply #'build-farm-get-entries-1
+                                    root-url entry-type search-type args)))
+                (build-farm-cache-set root-url 'projects entries)
+                (build-farm-cache-set root-url 'projects-received t)
+                entries)))
       (apply #'build-farm-get-entries-1
              root-url entry-type search-type args))))
 
