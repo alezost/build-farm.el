@@ -57,7 +57,7 @@ for the number of builds."
                           (build-farm-read-project nil project)
                         project))
          (jobset      (if current-prefix-arg
-                          (build-farm-read-jobset nil jobset)
+                          (build-farm-read-jobset project nil jobset)
                         jobset))
          (job-or-name (if current-prefix-arg
                           (build-farm-read-job nil job)

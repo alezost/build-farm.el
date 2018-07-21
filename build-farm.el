@@ -203,16 +203,18 @@ SEARCH-TYPE and ARGS."
   (mapcar #'bui-entry-id
           (build-farm-get-project-entries-once url)))
 
+(defun build-farm-jobset-names (project &optional url)
+  "Return jobsets for PROJECT from URL build farm."
+  (bui-entry-non-void-value
+   (bui-entry-by-id (build-farm-get-project-entries-once url)
+                    project)
+   'jobsets))
+
 (build-farm-define-readers
  :require-match nil
  :completions-getter build-farm-project-names
  :single-reader build-farm-read-project
  :single-prompt "Project: ")
-
-(build-farm-define-readers
- :require-match nil
- :single-reader build-farm-read-jobset
- :single-prompt "Jobset: ")
 
 (build-farm-define-readers
  :require-match nil
@@ -224,6 +226,14 @@ SEARCH-TYPE and ARGS."
  :completions-getter build-farm-system-types
  :single-reader build-farm-read-system
  :single-prompt "System: ")
+
+(defun build-farm-read-jobset (project &optional prompt initial-input)
+  "Read jobset for PROJECT from minibuffer.
+See `completing-read' for PROMPT and INITIAL-INPUT."
+  (build-farm-completing-read
+   (or prompt "Jobset: ")
+   (build-farm-jobset-names project)
+   nil nil initial-input))
 
 
 ;;; Filters for processing raw entries
