@@ -244,26 +244,6 @@ See `build-farm-build-status-alist'."
             (system   format build-farm-build-info-insert-system)
             (priority format (format))))
 
-(defface build-farm-build-info-project
-  '((t))
-  "Face for project names."
-  :group 'build-farm-build-info-faces)
-
-(defface build-farm-build-info-jobset
-  '((t))
-  "Face for jobsets."
-  :group 'build-farm-build-info-faces)
-
-(defface build-farm-build-info-job
-  '((t))
-  "Face for jobs."
-  :group 'build-farm-build-info-faces)
-
-(defface build-farm-build-info-system
-  '((t))
-  "Face for system names."
-  :group 'build-farm-build-info-faces)
-
 (cl-defun build-farm-build-info-insert-builds-button
     (&key project jobset job system)
   "Insert 'Builds' button for PROJECT, JOBSET, JOB, SYSTEM."
@@ -302,25 +282,25 @@ See `build-farm-build-status-alist'."
 
 (defun build-farm-build-info-insert-project (project entry)
   "Insert PROJECT for build ENTRY at point."
-  (bui-format-insert project 'build-farm-build-info-project)
+  (bui-format-insert project 'build-farm-info-project)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 
 (defun build-farm-build-info-insert-jobset (jobset entry)
   "Insert JOBSET for build ENTRY at point."
-  (bui-format-insert jobset 'build-farm-build-info-jobset)
+  (bui-format-insert jobset 'build-farm-info-jobset)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 
 (defun build-farm-build-info-insert-job (job entry)
   "Insert JOB for build ENTRY at point."
-  (bui-format-insert job 'build-farm-build-info-job)
+  (bui-format-insert job 'build-farm-info-job)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 
 (defun build-farm-build-info-insert-system (system entry)
   "Insert SYSTEM for build ENTRY at point."
-  (bui-format-insert system 'build-farm-build-info-system)
+  (bui-format-insert system 'build-farm-info-system)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 

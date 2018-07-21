@@ -61,6 +61,29 @@
   :group 'faces)
 
 
+;;; Faces and buttons
+
+(defface build-farm-info-project
+  '((t))
+  "Face for projects in 'info' buffers."
+  :group 'build-farm-faces)
+
+(defface build-farm-info-jobset
+  '((t))
+  "Face for jobsets in 'info' buffers."
+  :group 'build-farm-faces)
+
+(defface build-farm-info-job
+  '((t))
+  "Face for jobs in 'info' buffers."
+  :group 'build-farm-faces)
+
+(defface build-farm-info-system
+  '((t))
+  "Face for system names in 'info' buffers."
+  :group 'build-farm-faces)
+
+
 ;;; System types
 
 ;; XXX I don't like this hard-coding very much.  But it looks like there
