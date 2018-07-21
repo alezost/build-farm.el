@@ -288,7 +288,8 @@ See `build-farm-build-status-alist'."
 
 (defun build-farm-build-info-insert-jobset (jobset entry)
   "Insert JOBSET for build ENTRY at point."
-  (bui-format-insert jobset 'build-farm-info-jobset)
+  (build-farm-info-insert-jobset
+   (bui-entry-non-void-value entry 'project) jobset)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 

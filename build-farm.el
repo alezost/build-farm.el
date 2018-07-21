@@ -70,7 +70,7 @@
   :group 'build-farm-faces)
 
 (defface build-farm-info-jobset
-  '((t))
+  '((t :inherit link))
   "Face for jobsets in 'info' buffers."
   :group 'build-farm-faces)
 
@@ -101,6 +101,20 @@
   'face 'build-farm-info-project
   'help-echo "Display project info"
   'action 'build-farm-project-button-action)
+
+(define-button-type 'build-farm-jobset
+  :supertype 'bui-url
+  'face 'build-farm-info-jobset)
+
+(defun build-farm-info-insert-jobset (project jobset)
+  "Insert info about JOBSET of the PROJECT at point."
+  (let ((url (build-farm-jobset-url
+              :root-url (build-farm-current-url)
+              :project project
+              :jobset jobset)))
+    (bui-insert-button jobset 'build-farm-jobset
+                       'url url
+                       'help-echo (format "Browse %s" url))))
 
 
 ;;; System types

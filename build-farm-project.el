@@ -88,13 +88,7 @@
 
 (defun build-farm-project-info-insert-jobset (project jobset)
   "Insert info about JOBSET of the PROJECT at point."
-  (let ((url (build-farm-jobset-url
-              :root-url (build-farm-current-url)
-              :project project
-              :jobset jobset)))
-    (bui-insert-button jobset 'bui-url
-                       'url url
-                       'help-echo (format "Browse %s" url)))
+  (build-farm-info-insert-jobset project jobset)
   (bui-insert-indent)
   (build-farm-build-info-insert-builds-button
    :project project
