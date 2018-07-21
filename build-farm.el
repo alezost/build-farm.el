@@ -65,7 +65,7 @@
 ;;; Faces and buttons
 
 (defface build-farm-info-project
-  '((t))
+  '((t :inherit button))
   "Face for projects in 'info' buffers."
   :group 'build-farm-faces)
 
@@ -83,6 +83,24 @@
   '((t))
   "Face for system names in 'info' buffers."
   :group 'build-farm-faces)
+
+(defun build-farm-project-button-action (button)
+  "Display project info for project BUTTON."
+  (let ((search-type 'id)
+        (search-value (or (button-get button 'id)
+                          (button-get button 'name)
+                          (button-label button))))
+    (require 'build-farm-project)
+    (bui-get-display-entries
+     'build-farm-project 'info
+     (list (build-farm-current-url)
+           search-type search-value))))
+
+(define-button-type 'build-farm-project
+  :supertype 'bui
+  'face 'build-farm-info-project
+  'help-echo "Display project info"
+  'action 'build-farm-project-button-action)
 
 
 ;;; System types

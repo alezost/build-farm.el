@@ -88,7 +88,7 @@
 (defun build-farm-jobset-info-insert-project (project entry)
   "Insert PROJECT button for the jobset ENTRY."
   (let ((jobset (bui-entry-non-void-value entry 'name)))
-    (bui-format-insert project 'build-farm-build-info-project)
+    (bui-insert-button project 'build-farm-project)
     (bui-insert-indent)
     (build-farm-build-info-insert-builds-button
      :project project

@@ -282,7 +282,7 @@ See `build-farm-build-status-alist'."
 
 (defun build-farm-build-info-insert-project (project entry)
   "Insert PROJECT for build ENTRY at point."
-  (bui-format-insert project 'build-farm-info-project)
+  (bui-insert-button project 'build-farm-project)
   (bui-insert-indent)
   (build-farm-build-info-insert-button entry))
 
