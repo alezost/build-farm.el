@@ -109,7 +109,7 @@
   :describe-function 'build-farm-list-describe
   :mode-name "Farm-Jobset-List"
   :buffer-name "*Farm Jobsets*"
-  :format '((name nil 25 t)
+  :format '((name build-farm-jobset-list-get-name 25 t)
             (project nil 10 t)
             (scheduled nil 12 t)
             (succeeded nil 12 t)
@@ -120,6 +120,21 @@
 (let ((map build-farm-jobset-list-mode-map))
   (define-key map (kbd "B") 'build-farm-jobset-list-latest-builds))
 
+(defface build-farm-jobset-list-status-scheduled
+  '((t))
+  "Face used for a jobset name if there are scheduled jobs."
+  :group 'build-farm-jobset-list-faces)
+
+(defface build-farm-jobset-list-status-succeeded
+  '((t :inherit build-farm-build-status-succeeded))
+  "Face used for a jobset name if there are no failed or scheduled jobs."
+  :group 'build-farm-jobset-list-faces)
+
+(defface build-farm-jobset-list-status-failed
+  '((t :inherit build-farm-build-status-failed))
+  "Face used for a jobset name if there are failed jobs."
+  :group 'build-farm-jobset-list-faces)
+
 (defvar build-farm-jobset-list-default-hint
   '(("\\[build-farm-jobset-list-latest-builds]")
     " show latest builds of the current jobset;\n"))
@@ -129,6 +144,19 @@
   (bui-format-hints
    build-farm-jobset-list-default-hint
    (bui-default-hint)))
+
+(defun build-farm-jobset-list-get-name (name entry)
+  "Return NAME of the jobset ENTRY.
+Colorize it with an appropriate face if needed."
+  (bui-get-string
+   name
+   (cond ((> (bui-entry-value entry 'failed) 0)
+          'build-farm-jobset-list-status-failed)
+         ((> (bui-entry-value entry 'scheduled) 0)
+          'build-farm-jobset-list-status-scheduled)
+         ((= (bui-entry-value entry 'total)
+             (bui-entry-value entry 'succeeded))
+          'build-farm-jobset-list-status-succeeded))))
 
 (defun build-farm-jobset-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current jobset.
