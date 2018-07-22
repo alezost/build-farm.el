@@ -46,6 +46,7 @@
             nil
             (description nil (simple build-farm-project-info-description))
             nil
+            build-farm-project-info-insert-url
             (id format (format))
             (owner format (format build-farm-project-info-owner))
             (enabled format build-farm-project-info-insert-enabled)
@@ -71,6 +72,14 @@
   '((t :inherit shadow))
   "Face used for disabled projects."
   :group 'build-farm-project-info-faces)
+
+(defun build-farm-project-info-insert-url (entry)
+  "Insert URL for the project ENTRY."
+  (bui-insert-button (build-farm-project-url
+                      :root-url (build-farm-current-url)
+                      :project (bui-entry-id entry))
+                     'bui-url)
+  (bui-newline))
 
 (defun build-farm-project-info-insert-enabled (value _entry)
   "Insert boolean VALUE showing whether this project is enabled."
