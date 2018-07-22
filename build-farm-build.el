@@ -29,7 +29,8 @@
 (require 'build-farm-url)
 
 (build-farm-define-entry-type build
-  :search-types '((latest . build-farm-build-latest-api-url)
+  :search-types '((id     . build-farm-build-url)
+                  (latest . build-farm-build-latest-api-url)
                   (queue  . build-farm-build-queue-api-url))
   :filters '(build-farm-build-filter-status)
   :filter-names '((nixname . name)
@@ -405,6 +406,12 @@ NUMBER.  With prefix argument, prompt for it."
                           build-farm-number-of-builds)
            build-farm-number-of-builds)))
   (build-farm-get-display build-farm-url 'build 'queue number))
+
+;;;###autoload
+(defun build-farm-build (id)
+  "Find build by its ID and display it."
+  (interactive "nBuild ID: ")
+  (build-farm-get-display build-farm-url 'build 'id id))
 
 (provide 'build-farm-build)
 

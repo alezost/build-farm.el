@@ -37,6 +37,7 @@
 ;;
 ;; - `build-farm-latest-builds'
 ;; - `build-farm-queued-builds'
+;; - `build-farm-build'
 ;; - `build-farm-jobsets'
 ;; - `build-farm-projects'
 ;; - `build-farm-project'
@@ -206,6 +207,12 @@ SEARCH-TYPE and ARGS."
   (let* ((url         (apply #'build-farm-search-url
                              root-url entry-type search-type args))
          (raw-entries (build-farm-receive-data url))
+         (raw-entries (cond
+                       ((eq search-type 'id)
+                        ;; We expect multiple entries so wrap a single
+                        ;; ID entry into a list.
+                        (list raw-entries))
+                       (t raw-entries)))
          (entries     (apply #'build-farm-modify-objects
                              raw-entries
                              (build-farm-filters entry-type))))
