@@ -46,14 +46,20 @@ for the number of builds."
   :type 'integer
   :group 'build-farm-build)
 
+(defun build-farm-build-read-number-maybe (&optional prompt)
+  "Read from minibuffer (using PROMPT) a number of builds.
+If `current-prefix-arg' is specified, just return
+`build-farm-number-of-builds' without reading."
+  (if (or current-prefix-arg
+          (null build-farm-number-of-builds))
+      (read-number (or prompt "Number of builds: ")
+                   build-farm-number-of-builds)
+    build-farm-number-of-builds))
+
 (cl-defun build-farm-build-latest-prompt-args (&key project jobset
                                                     job system)
   "Prompt for and return a list of 'latest builds' arguments."
-  (let* ((number      (if (or current-prefix-arg
-                              (null build-farm-number-of-builds))
-                          (read-number "Number of latest builds: "
-                                       build-farm-number-of-builds)
-                        build-farm-number-of-builds))
+  (let* ((number      (build-farm-build-read-number-maybe))
          (project     (if current-prefix-arg
                           (build-farm-read-project nil project)
                         project))
@@ -400,11 +406,7 @@ ARGS."
 Interactively, use `build-farm-number-of-builds' variable for
 NUMBER.  With prefix argument, prompt for it."
   (interactive
-   (list (if (or current-prefix-arg
-                 (null build-farm-number-of-builds))
-             (read-number "Number of queued builds: "
-                          build-farm-number-of-builds)
-           build-farm-number-of-builds)))
+   (list (build-farm-build-read-number-maybe)))
   (build-farm-get-display build-farm-url 'build 'queue number))
 
 ;;;###autoload
