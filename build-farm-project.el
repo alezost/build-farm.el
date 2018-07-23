@@ -26,6 +26,7 @@
 (require 'build-farm)
 (require 'build-farm-url)
 (require 'build-farm-build)
+(require 'build-farm-jobset)
 
 (build-farm-define-entry-type project
   :search-types '((all . build-farm-project-url))
