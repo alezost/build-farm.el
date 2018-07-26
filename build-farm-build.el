@@ -279,38 +279,37 @@ See `build-farm-build-status-alist'."
    'job job
    'system system))
 
-(defun build-farm-build-info-insert-button (entry)
-  "Insert 'Builds' button for build ENTRY at point."
-  (build-farm-build-info-insert-builds-button
-   :project (bui-entry-non-void-value entry 'project)
-   :jobset  (bui-entry-non-void-value entry 'jobset)
-   :job     (bui-entry-non-void-value entry 'job)
-   :system  (bui-entry-non-void-value entry 'system)))
-
 (defun build-farm-build-info-insert-project (project entry)
   "Insert PROJECT for build ENTRY at point."
   (bui-insert-button project 'build-farm-project)
   (bui-insert-indent)
-  (build-farm-build-info-insert-button entry))
+  (build-farm-build-info-insert-builds-button
+   :project (bui-entry-non-void-value entry 'project)))
 
 (defun build-farm-build-info-insert-jobset (jobset entry)
   "Insert JOBSET for build ENTRY at point."
   (build-farm-info-insert-jobset
    (bui-entry-non-void-value entry 'project) jobset)
   (bui-insert-indent)
-  (build-farm-build-info-insert-button entry))
+  (build-farm-build-info-insert-builds-button
+   :project (bui-entry-non-void-value entry 'project)
+   :jobset  (bui-entry-non-void-value entry 'jobset)))
 
 (defun build-farm-build-info-insert-job (job entry)
   "Insert JOB for build ENTRY at point."
   (bui-format-insert job 'build-farm-info-job)
   (bui-insert-indent)
-  (build-farm-build-info-insert-button entry))
+  (build-farm-build-info-insert-builds-button
+   :project (bui-entry-non-void-value entry 'project)
+   :jobset  (bui-entry-non-void-value entry 'jobset)
+   :job     (bui-entry-non-void-value entry 'job)))
 
 (defun build-farm-build-info-insert-system (system entry)
   "Insert SYSTEM for build ENTRY at point."
   (bui-format-insert system 'build-farm-info-system)
   (bui-insert-indent)
-  (build-farm-build-info-insert-button entry))
+  (build-farm-build-info-insert-builds-button
+   :system  (bui-entry-non-void-value entry 'system)))
 
 (defun build-farm-build-info-insert-url (entry)
   "Insert URL for the build ENTRY."
