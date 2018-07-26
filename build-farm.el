@@ -6,7 +6,7 @@
 ;; Version: 0.1
 ;; URL: https://gitlab.com/alezost-emacs/build-farm
 ;; Keywords: tools
-;; Package-Requires: ((emacs "24.3") (bui "1.1.0"))
+;; Package-Requires: ((emacs "24.3") (bui "1.1.0") (magit-popup "2.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +33,11 @@
 ;; Set `build-farm-url' variable to choose what build farm you wish to
 ;; use.
 
-;; The following M-x commands display builds, jobsets and projects:
+;; The entry point for the available features is "M-x build-farm".  It
+;; provides a Magit-like interface for the commands to display builds,
+;; jobsets and projects.
+
+;; Alternatively, you can use the following M-x commands directly:
 ;;
 ;; - `build-farm-latest-builds'
 ;; - `build-farm-queued-builds'
@@ -41,7 +45,7 @@
 ;; - `build-farm-jobsets'
 ;; - `build-farm-projects'
 ;; - `build-farm-project'
-;;
+
 ;; You can press RET in a list (of builds, etc.) to see more info on the
 ;; current entry.  You can also select several entries in the list (with
 ;; "m" key) and press RET to "describe" them.
