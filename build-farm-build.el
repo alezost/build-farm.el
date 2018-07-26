@@ -46,14 +46,23 @@ for the number of builds."
   :type 'integer
   :group 'build-farm-build)
 
+(defun build-farm-set-number-of-builds (number)
+  "Set `build-farm-number-of-builds' to NUMBER."
+  (interactive (list (build-farm-build-read-number)))
+  (setq build-farm-number-of-builds number))
+
+(defun build-farm-build-read-number (&optional prompt)
+  "Read from minibuffer (using PROMPT) a number of builds."
+  (read-number (or prompt "Number of builds: ")
+               build-farm-number-of-builds))
+
 (defun build-farm-build-read-number-maybe (&optional prompt)
   "Read from minibuffer (using PROMPT) a number of builds.
 If `current-prefix-arg' is specified, just return
 `build-farm-number-of-builds' without reading."
   (if (or current-prefix-arg
           (null build-farm-number-of-builds))
-      (read-number (or prompt "Number of builds: ")
-                   build-farm-number-of-builds)
+      (build-farm-build-read-number prompt)
     build-farm-number-of-builds))
 
 (cl-defun build-farm-build-latest-prompt-args (&key project jobset
