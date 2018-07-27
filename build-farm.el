@@ -253,7 +253,7 @@ SEARCH-TYPE and ARGS."
   ;; XXX Add more messages maybe.
   (when (null entries)
     (if (eq search-type 'fake)
-        (message "The update is impossible due to lack of the build farm API.")
+        (message "Sorry, this operation is not supported.")
       (message "The build farm has returned no results."))))
 
 (defun build-farm-list-describe (&rest ids)
@@ -261,8 +261,11 @@ SEARCH-TYPE and ARGS."
   (bui-display-entries
    (bui-entries-by-ids (bui-current-entries) ids)
    (bui-current-entry-type) 'info
-   ;; Hydra and Cuirass do not provide an API to receive builds/jobsets
-   ;; by IDs/names, so we use a 'fake' search type.
+   ;; Hydra provides an API to receive a build/jobset by its ID/name,
+   ;; but only a single one.  Thus, to receive info on multiple
+   ;; builds/jobsets, we have to request a build farm multiple times.
+   ;; This may take a lot of time, so getting multiple builds/jobsets is
+   ;; not supported, and we use the 'fake' search type.
    (list (build-farm-current-url) 'fake)
    'add))
 
