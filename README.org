@@ -3,33 +3,33 @@
 =Emacs-Build-Farm= is an Emacs interface for [[https://nixos.org/hydra/][Hydra]] and [[https://git.savannah.gnu.org/cgit/guix/guix-cuirass.git/][Cuirass]] — build
 farms for [[https://nixos.org/nix/][Nix]] and [[https://www.gnu.org/software/guix/][Guix]] package managers, i.e., for:
 
-| https://hydra.nixos.org   | Hydra for Nix    |
-| https://hydra.gnu.org     | Hydra for Guix   |
-| https://berlin.guixsd.org | Cuirass for Guix |
+| [[https://hydra.nixos.org]]   | Hydra for Nix    |
+| [[https://hydra.gnu.org]]     | Hydra for Guix   |
+| [[https://berlin.guixsd.org]] | Cuirass for Guix |
 
 This package allows you to look at builds, jobsets and projects of these
 build farms.
 
 * Usage
 
-The entry point for the available features is `M-x build-farm` command.
+The entry point for the available features is =M-x build-farm= command.
 It provides a [[https://github.com/magit/magit-popup][magit-popup]] interface to display builds, jobsets and
 projects.
 
-Alternatively, you can use the following `M-x` commands directly:
+Alternatively, you can use the following =M-x= commands directly:
 
-- `build-farm-projects`
-- `build-farm-project`
-- `build-farm-jobsets`
-- `build-farm-latest-builds`
-- `build-farm-queued-builds`
-- `build-farm-build`
+- =build-farm-projects=
+- =build-farm-project=
+- =build-farm-jobsets=
+- =build-farm-latest-builds=
+- =build-farm-queued-builds=
+- =build-farm-build=
 
 ** Keys in "list" buffers
 
 Most of the above commands show "list" buffers (list of builds, etc.).
 These lists provide some key bindings, the main of which are:
 
-- `h` (hint): allows you to look at the provided key bindings;
-- `RET`: displays "info" buffer for the current entry or several marked
-  entries (marked with `m` key).
+- =h= (hint): allows you to look at the provided key bindings;
+- =RET=: displays "info" buffer for the current entry or several marked
+  entries (marked with =m= key).
