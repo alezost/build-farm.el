@@ -185,7 +185,8 @@ ARGS."
 (defun build-farm-project (project)
   "Display build farm PROJECT."
   (interactive (list (build-farm-read-project)))
-  (build-farm-get-display build-farm-url 'project 'id project))
+  (bui-get-display-entries 'build-farm-project 'info
+                           (list build-farm-url 'id project)))
 
 (provide 'build-farm-project)
 
