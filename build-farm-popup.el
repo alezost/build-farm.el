@@ -74,22 +74,22 @@ See `completing-read' for PROMPT and INITIAL-INPUT."
               :project)
    prompt initial-input))
 
-(defun build-farm-popup-option-value (string &optional description)
-  "Return STRING formatted for popup buffer.
-DESCRIPTION is appended to the resulting string."
-  (concat description
-          (propertize (concat "\"" string "\"")
+(defun build-farm-popup-variable-value (var-name)
+  "Return string formatted for popup buffer.
+String is made of variable VAR-NAME and its value."
+  (concat (propertize (symbol-name var-name)
+                      'face font-lock-variable-name-face)
+          " "
+          (propertize (prin1-to-string (symbol-value var-name))
                       'face 'magit-popup-option-value)))
 
 (defun build-farm-popup-format-url ()
   "Return URL string, formatted for '\\[build-farm]'."
-  (build-farm-popup-option-value build-farm-url "URL "))
+  (build-farm-popup-variable-value 'build-farm-url))
 
 (defun build-farm-popup-format-number-of-builds ()
   "Return number of builds, formatted for '\\[build-farm-build-popup]'."
-  (build-farm-popup-option-value
-   (number-to-string build-farm-number-of-builds)
-   "Number of builds "))
+  (build-farm-popup-variable-value 'build-farm-number-of-builds))
 
 (defun build-farm-popup-build-args ()
   "Return arguments of the current build popup buffer."
