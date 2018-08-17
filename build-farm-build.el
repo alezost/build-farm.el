@@ -35,8 +35,17 @@
   :filters '(build-farm-build-filter-status)
   :filter-names '((nixname . name)
                   (buildstatus . build-status)
-                  (timestamp . time))
-  :filter-boolean-params '(finished busy))
+                  (buildmetrics . build-metrics)
+                  (buildoutputs . outputs)
+                  (drvpath . derivation)
+                  (releasename . release-name)
+                  (starttime . start-time)
+                  (stoptime . stop-time)
+                  (timestamp . queued-time))
+  :filter-boolean-params '(finished busy)
+  :titles '((queued-time . "Queued at")
+            (start-time . "Started at")
+            (stop-time . "Stopped at")))
 
 (defcustom build-farm-number-of-builds 64
   "Default number of builds to display.
@@ -252,13 +261,23 @@ See `build-farm-build-status-alist'."
   :format '((name nil (simple bui-info-heading))
             nil
             build-farm-build-info-insert-url
-            (time     format (time))
+            (queued-time format (time))
+            (start-time format (time))
+            (stop-time format (time))
+            (release-name format (format))
             (status   format build-farm-build-info-insert-status)
+            (priority format (format))
+            (derivation simple (indent bui-file))
+            (outputs simple (build-farm-build-info-insert-outputs))
+            nil
             (project  format build-farm-build-info-insert-project)
             (jobset   format build-farm-build-info-insert-jobset)
             (job      format build-farm-build-info-insert-job)
-            (system   format build-farm-build-info-insert-system)
-            (priority format (format))))
+            (system   format build-farm-build-info-insert-system)))
+
+(defvar build-farm-build-info-output-format "%-6s  "
+  "String for formatting output names of builds.
+It should be a '%s'-sequence.")
 
 (cl-defun build-farm-build-info-insert-builds-button
     (&key project jobset job system)
@@ -340,6 +359,23 @@ See `build-farm-build-status-alist'."
   "Insert a string with build STATUS."
   (insert (build-farm-build-status-string status)))
 
+(defun build-farm-build-info-insert-outputs (outputs)
+  "Insert build OUTPUTS at point."
+  (bui-insert-non-nil outputs
+    (dolist (output outputs)
+      (bui-newline)
+      (bui-insert-indent)
+      (build-farm-build-info-insert-output output))))
+
+(defun build-farm-build-info-insert-output (output)
+  "Insert build OUTPUT at point."
+  (let* ((name (symbol-name (car output)))
+         (alist (cdr output))
+         (file-name (bui-assq-value alist 'path)))
+    (bui-format-insert name nil
+                       build-farm-build-info-output-format)
+    (bui-insert-button file-name 'bui-file)))
+
 
 ;;; Build 'list'
 
@@ -352,7 +388,7 @@ See `build-farm-build-status-alist'."
             (status build-farm-build-list-get-status 20 t)
             (project nil 10 t)
             (jobset nil 17 t)
-            (time bui-list-get-time 20 t))
+            (queued-time bui-list-get-time 20 t))
   :hint 'build-farm-build-list-hint)
 
 (let ((map build-farm-build-list-mode-map))
