@@ -183,6 +183,10 @@ If URL is nil, use variable `build-farm-url'."
 (bui-define-current-args-accessors build-farm-current
   url search-type search-args)
 
+(defun build-farm-current-url-type ()
+  "Return build farm type of the current buffer."
+  (build-farm-url-type (build-farm-current-url)))
+
 (defun build-farm-get-entries (root-url entry-type search-type
                                         &rest args)
   "Receive ENTRY-TYPE entries from cache or build farm.

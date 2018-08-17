@@ -260,6 +260,7 @@ See `build-farm-build-status-alist'."
   :buffer-name "*Farm Build Info*"
   :format '((name nil (simple bui-info-heading))
             nil
+            build-farm-build-info-insert-more-button
             build-farm-build-info-insert-url
             (queued-time format (time))
             (start-time format (time))
@@ -278,6 +279,30 @@ See `build-farm-build-status-alist'."
 (defvar build-farm-build-info-output-format "%-6s  "
   "String for formatting output names of builds.
 It should be a '%s'-sequence.")
+
+(defun build-farm-build-info-insert-more-button (entry)
+  "Insert 'More info' button for build ENTRY at point."
+  (when (and (eq 'hydra (build-farm-current-url-type))
+             (bui-void-value? (bui-entry-value entry 'start-time)))
+    (bui-insert-action-button
+     "More info"
+     (lambda (btn)
+       (build-farm-build-info-update-build (button-get btn 'id)))
+     "Receive more info on the current build"
+     'id (bui-entry-id entry))
+    (bui-newline 2)))
+
+(defun build-farm-build-info-update-build (id)
+  "Update build with ID in the current build info buffer."
+  (let ((new-entry (car (bui-get-entries
+                         'build-farm-build 'info
+                         (list (build-farm-current-url) 'id id)))))
+    (or new-entry
+        ;; Actually, this shouldn't happen.
+        (error "Couldn't receive more info for build %d" id))
+    (setf (bui-item-entries bui-item)
+          (bui-replace-entry (bui-current-entries) id new-entry))
+    (bui-redisplay)))
 
 (cl-defun build-farm-build-info-insert-builds-button
     (&key project jobset job system)
