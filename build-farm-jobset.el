@@ -28,71 +28,8 @@
 (require 'build-farm-build)
 (require 'build-farm-url)
 
-(build-farm-define-entry-type jobset
-  :search-types '((project . build-farm-jobset-api-url))
-  :filters '(build-farm-jobset-filter-id)
-  :filter-names '((nrscheduled . scheduled)
-                  (nrsucceeded . succeeded)
-                  (nrfailed . failed)
-                  (nrtotal . total)))
-
-(defun build-farm-jobset-id (project jobset)
-  "Return jobset ID from PROJECT name and JOBSET name."
-  (concat project "/" jobset))
-
 
-;;; Filters for processing raw entries
-
-(defun build-farm-jobset-filter-id (entry)
-  "Add 'ID' parameter to 'jobset' ENTRY."
-  (cons `(id . ,(build-farm-jobset-id
-                 (bui-entry-non-void-value entry 'project)
-                 (bui-entry-non-void-value entry 'name)))
-        entry))
-
-
-;;; Jobset 'info'
-
-(build-farm-define-interface jobset info
-  :mode-name "Farm-Jobset-Info"
-  :buffer-name "*Farm Jobset Info*"
-  :format '((name nil (simple bui-info-heading))
-            nil
-            build-farm-jobset-info-insert-url
-            (project   format build-farm-jobset-info-insert-project)
-            (scheduled format (format build-farm-jobset-info-scheduled))
-            (succeeded format (format build-farm-jobset-info-succeeded))
-            (failed    format (format build-farm-jobset-info-failed))
-            (total     format (format build-farm-jobset-info-total))))
-
-(defface build-farm-jobset-info-scheduled
-  '((t))
-  "Face used for the number of scheduled builds."
-  :group 'build-farm-jobset-info-faces)
-
-(defface build-farm-jobset-info-succeeded
-  '((t :inherit build-farm-build-status-succeeded))
-  "Face used for the number of succeeded builds."
-  :group 'build-farm-jobset-info-faces)
-
-(defface build-farm-jobset-info-failed
-  '((t :inherit build-farm-build-status-failed))
-  "Face used for the number of failed builds."
-  :group 'build-farm-jobset-info-faces)
-
-(defface build-farm-jobset-info-total
-  '((t))
-  "Face used for the total number of builds."
-  :group 'build-farm-jobset-info-faces)
-
-(defun build-farm-jobset-info-insert-project (project entry)
-  "Insert PROJECT button for the jobset ENTRY."
-  (let ((jobset (bui-entry-non-void-value entry 'name)))
-    (bui-insert-button project 'build-farm-project)
-    (bui-insert-indent)
-    (build-farm-build-info-insert-builds-button
-     :project project
-     :jobset jobset)))
+;;; Common for Hydra and Cuirass
 
 (defun build-farm-jobset-info-insert-url (entry)
   "Insert URL for the jobset ENTRY."
@@ -103,62 +40,128 @@
   (bui-newline))
 
 
-;;; Jobset 'list'
+;;; Hydra common
 
-(build-farm-define-interface jobset list
+(build-farm-define-entry-type hydra-jobset
+  :search-types '((project . build-farm-hydra-jobset-api-url))
+  :filters '(build-farm-hydra-jobset-filter-id)
+  :filter-names '((nrscheduled . scheduled)
+                  (nrsucceeded . succeeded)
+                  (nrfailed . failed)
+                  (nrtotal . total)))
+
+(defun build-farm-hydra-jobset-id (project jobset)
+  "Return jobset ID from PROJECT name and JOBSET name."
+  (concat project "/" jobset))
+
+(defun build-farm-hydra-jobset-filter-id (entry)
+  "Add 'ID' parameter to 'jobset' ENTRY."
+  (cons `(id . ,(build-farm-hydra-jobset-id
+                 (bui-entry-non-void-value entry 'project)
+                 (bui-entry-non-void-value entry 'name)))
+        entry))
+
+
+;;; Hydra Jobset 'info'
+
+(build-farm-define-interface hydra-jobset info
+  :mode-name "Hydra-Jobset-Info"
+  :buffer-name "*Farm Jobset Info*"
+  :format '((name nil (simple bui-info-heading))
+            nil
+            build-farm-jobset-info-insert-url
+            (project   format build-farm-hydra-jobset-info-insert-project)
+            (scheduled format (format build-farm-hydra-jobset-info-scheduled))
+            (succeeded format (format build-farm-hydra-jobset-info-succeeded))
+            (failed    format (format build-farm-hydra-jobset-info-failed))
+            (total     format (format build-farm-hydra-jobset-info-total))))
+
+(defface build-farm-hydra-jobset-info-scheduled
+  '((t))
+  "Face used for the number of scheduled builds."
+  :group 'build-farm-hydra-jobset-info-faces)
+
+(defface build-farm-hydra-jobset-info-succeeded
+  '((t :inherit build-farm-build-status-succeeded))
+  "Face used for the number of succeeded builds."
+  :group 'build-farm-hydra-jobset-info-faces)
+
+(defface build-farm-hydra-jobset-info-failed
+  '((t :inherit build-farm-build-status-failed))
+  "Face used for the number of failed builds."
+  :group 'build-farm-hydra-jobset-info-faces)
+
+(defface build-farm-hydra-jobset-info-total
+  '((t))
+  "Face used for the total number of builds."
+  :group 'build-farm-hydra-jobset-info-faces)
+
+(defun build-farm-hydra-jobset-info-insert-project (project entry)
+  "Insert PROJECT button for the jobset ENTRY."
+  (let ((jobset (bui-entry-non-void-value entry 'name)))
+    (bui-insert-button project 'build-farm-project)
+    (bui-insert-indent)
+    (build-farm-build-info-insert-builds-button
+     :project project
+     :jobset jobset)))
+
+
+;;; Hydra Jobset 'list'
+
+(build-farm-define-interface hydra-jobset list
   :describe-function 'build-farm-list-describe
-  :mode-name "Farm-Jobset-List"
+  :mode-name "Hydra-Jobset-List"
   :buffer-name "*Farm Jobsets*"
-  :format '((name build-farm-jobset-list-get-name 25 t)
+  :format '((name build-farm-hydra-jobset-list-get-name 25 t)
             (project nil 10 t)
             (scheduled nil 12 t)
             (succeeded nil 12 t)
             (failed nil 9 t)
             (total nil 10 t))
-  :hint 'build-farm-jobset-list-hint)
+  :hint 'build-farm-hydra-jobset-list-hint)
 
-(let ((map build-farm-jobset-list-mode-map))
-  (define-key map (kbd "B") 'build-farm-jobset-list-latest-builds))
+(let ((map build-farm-hydra-jobset-list-mode-map))
+  (define-key map (kbd "B") 'build-farm-hydra-jobset-list-latest-builds))
 
-(defface build-farm-jobset-list-status-scheduled
+(defface build-farm-hydra-jobset-list-status-scheduled
   '((t))
   "Face used for a jobset name if there are scheduled jobs."
-  :group 'build-farm-jobset-list-faces)
+  :group 'build-farm-hydra-jobset-list-faces)
 
-(defface build-farm-jobset-list-status-succeeded
+(defface build-farm-hydra-jobset-list-status-succeeded
   '((t :inherit build-farm-build-status-succeeded))
   "Face used for a jobset name if there are no failed or scheduled jobs."
-  :group 'build-farm-jobset-list-faces)
+  :group 'build-farm-hydra-jobset-list-faces)
 
-(defface build-farm-jobset-list-status-failed
+(defface build-farm-hydra-jobset-list-status-failed
   '((t :inherit build-farm-build-status-failed))
   "Face used for a jobset name if there are failed jobs."
-  :group 'build-farm-jobset-list-faces)
+  :group 'build-farm-hydra-jobset-list-faces)
 
-(defvar build-farm-jobset-list-default-hint
-  '(("\\[build-farm-jobset-list-latest-builds]")
+(defvar build-farm-hydra-jobset-list-default-hint
+  '(("\\[build-farm-hydra-jobset-list-latest-builds]")
     " show latest builds of the current jobset;\n"))
 
-(defun build-farm-jobset-list-hint ()
+(defun build-farm-hydra-jobset-list-hint ()
   "Return hint string for a jobset-list buffer."
   (bui-format-hints
-   build-farm-jobset-list-default-hint
+   build-farm-hydra-jobset-list-default-hint
    (bui-default-hint)))
 
-(defun build-farm-jobset-list-get-name (name entry)
+(defun build-farm-hydra-jobset-list-get-name (name entry)
   "Return NAME of the jobset ENTRY.
 Colorize it with an appropriate face if needed."
   (bui-get-string
    name
    (cond ((> (bui-entry-value entry 'failed) 0)
-          'build-farm-jobset-list-status-failed)
+          'build-farm-hydra-jobset-list-status-failed)
          ((> (bui-entry-value entry 'scheduled) 0)
-          'build-farm-jobset-list-status-scheduled)
+          'build-farm-hydra-jobset-list-status-scheduled)
          ((= (bui-entry-value entry 'total)
              (bui-entry-value entry 'succeeded))
-          'build-farm-jobset-list-status-succeeded))))
+          'build-farm-hydra-jobset-list-status-succeeded))))
 
-(defun build-farm-jobset-list-latest-builds (number &rest args)
+(defun build-farm-hydra-jobset-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current jobset.
 Interactively, use `build-farm-number-of-builds' variable for
 NUMBER.  With prefix argument, prompt for it and for the other
@@ -178,7 +181,8 @@ ARGS."
 (defun build-farm-jobsets (project)
   "Display jobsets of PROJECT."
   (interactive (list (build-farm-read-project)))
-  (build-farm-get-display build-farm-url 'jobset 'project project))
+  (build-farm-get-display build-farm-url 'hydra-jobset
+                          'project project))
 
 ;; Info returned for multiple jobsets (from "api/jobsets") and for a
 ;; single jobset (from "jobset") are completely different!  Compare:

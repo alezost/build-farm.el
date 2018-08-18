@@ -98,7 +98,7 @@
 
 (defun build-farm-project-info-insert-jobset (project jobset)
   "Insert info about JOBSET of the PROJECT at point."
-  (build-farm-info-insert-jobset project jobset)
+  (build-farm-info-insert-hydra-jobset project jobset)
   (bui-insert-indent)
   (build-farm-build-info-insert-builds-button
    :project project
@@ -158,7 +158,8 @@ Colorize it with an appropriate face if needed."
   "Display jobsets of the current project."
   (interactive)
   (build-farm-get-display (build-farm-current-url)
-                          'jobset 'project (bui-list-current-id)))
+                          'hydra-jobset
+                          'project (bui-list-current-id)))
 
 (defun build-farm-project-list-latest-builds (number &rest args)
   "Display latest NUMBER of builds of the current project.

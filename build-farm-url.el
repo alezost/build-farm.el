@@ -26,6 +26,7 @@
 (require 'url-expand)
 (require 'json)
 (require 'build-farm-utils)
+(eval-when-compile (require 'subr-x))
 
 (defvar build-farm-url-alist
   '(("https://hydra.nixos.org" . hydra)
@@ -150,17 +151,25 @@ See function `build-farm-url' for the meaning of ROOT-URL."
    :root-url root-url))
 
 (cl-defun build-farm-jobset-url (&key root-url project jobset jobset-id)
-  "Return URL of a PROJECT's JOBSET.
-Above that, you should specify either a single JOBSET-ID
+  "Return URL of a build farm JOBSET.
+
+For Cuirass farm, you should not use PROJECT, so you can specify
+either JOBSET or JOBSET-ID.
+
+For Hydra farm, you should specify either a single JOBSET-ID
 argument (it should have a form 'project/jobset') or PROJECT and
 JOBSET arguments.
+
 See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-url root-url "/jobset/"
-                  (or jobset-id
-                      (concat project "/" jobset))))
+                  (if project
+                      (concat project "/" jobset)
+                    ;; JOBSET-ID for Cuirass contains leading "/".
+                    (or (string-trim-left jobset-id "/")
+                        jobset))))
 
-(cl-defun build-farm-jobset-api-url (project &key root-url)
-  "Return API URL for jobsets by PROJECT.
+(cl-defun build-farm-hydra-jobset-api-url (project &key root-url)
+  "Return API URL for Hydra jobsets by PROJECT.
 See function `build-farm-url' for the meaning of ROOT-URL."
   (build-farm-api-url
    "jobsets"

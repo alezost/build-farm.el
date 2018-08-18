@@ -6,7 +6,7 @@
 ;; Version: 0.1
 ;; URL: https://gitlab.com/alezost-emacs/build-farm
 ;; Keywords: tools
-;; Package-Requires: ((emacs "24.3") (bui "1.1.0") (magit-popup "2.1.0"))
+;; Package-Requires: ((emacs "24.4") (bui "1.1.0") (magit-popup "2.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@
   :supertype 'bui-url
   'face 'build-farm-info-jobset)
 
-(defun build-farm-info-insert-jobset (project jobset)
+(defun build-farm-info-insert-hydra-jobset (project jobset)
   "Insert info about JOBSET of the PROJECT at point."
   (let ((url (build-farm-jobset-url
               :root-url (build-farm-current-url)
