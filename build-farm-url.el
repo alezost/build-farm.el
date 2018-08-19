@@ -211,14 +211,15 @@ also raises an error if URL has not been retrieved properly."
       ;; does not return json data from "non-api" URLs.
       (if (eq (build-farm-url-type) 'cuirass)
           (error "Sorry, Cuirass does not support this API")
-          (error "\
+        (error "\
 The server has not returned 'application/json' content type.
 Perhaps, API has changed:\n%s"
-             url)))
+               url)))
     (with-temp-buffer
       (url-insert-buffer-contents url-buffer url)
       (goto-char (point-min))
-      (let ((json-key-type 'symbol)
+      (let ((json-false nil)    ; default value is `:json-false'
+            (json-key-type 'symbol)
             (json-array-type 'list)
             (json-object-type 'alist))
         (json-read)))))
