@@ -41,7 +41,7 @@
 ;;; Project 'info'
 
 (build-farm-define-interface project info
-  :mode-name "Farm-Project-Info"
+  :mode-name "Project-Info"
   :buffer-name "*Farm Project Info*"
   :format '((name nil (simple bui-info-heading))
             nil
@@ -109,7 +109,7 @@
 
 (build-farm-define-interface project list
   :describe-function 'build-farm-list-describe
-  :mode-name "Farm-Project-List"
+  :mode-name "Project-List"
   :buffer-name "*Farm Projects*"
   :format '((name build-farm-project-list-get-name 25 t)
             (owner nil 22 t)

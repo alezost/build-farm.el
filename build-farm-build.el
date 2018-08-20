@@ -256,7 +256,7 @@ See `build-farm-build-status-alist'."
 ;;; Build 'info'
 
 (build-farm-define-interface build info
-  :mode-name "Farm-Build-Info"
+  :mode-name "Build-Info"
   :buffer-name "*Farm Build Info*"
   :format '((name nil (simple bui-info-heading))
             nil
@@ -406,7 +406,7 @@ It should be a '%s'-sequence.")
 
 (build-farm-define-interface build list
   :describe-function 'build-farm-list-describe
-  :mode-name "Farm-Build-List"
+  :mode-name "Build-List"
   :buffer-name "*Farm Builds*"
   :format '((name nil 30 t)
             (system nil 16 t)
