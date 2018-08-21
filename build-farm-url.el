@@ -176,6 +176,11 @@ See function `build-farm-url' for the meaning of ROOT-URL."
    `(("project" . ,project))
    :root-url root-url))
 
+(cl-defun build-farm-cuirass-jobsets-url (&key root-url)
+  "Return URL with all Cuirass JOBSETS.
+See function `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-url root-url "/jobsets"))
+
 (cl-defun build-farm-project-url (&key root-url project)
   "Return URL with build farm PROJECT.
 If PROJECT is nil, return URL with all projects.

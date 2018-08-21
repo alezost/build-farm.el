@@ -20,6 +20,9 @@
 ;; This file provides an interface for displaying jobsets of a build
 ;; farm in 'list' and 'info' buffers.
 
+;; Unlike builds, jobsets for Cuirass and Hydra have very few in common,
+;; so there are 2 different interfaces for these 2 types of jobsets.
+
 ;;; Code:
 
 (require 'cl-lib)
@@ -175,14 +178,122 @@ ARGS."
          (build-farm-current-url) 'build 'latest number args))
 
 
+;;; Cuirass common
+
+(build-farm-define-entry-type cuirass-jobset
+  :search-types '((all . build-farm-cuirass-jobsets-url))
+  :titles '((proc . "Procedure")
+            (proc-input . "Procedure input")
+            (proc-file . "Procedure file")
+            (proc-args . "Procedure arguments")))
+
+(defface build-farm-cuirass-jobset-file
+  '((t :inherit bui-file-name))
+  "Face used for file name of a jobset's procedure."
+  :group 'build-farm-cuirass-jobset-faces)
+
+(declare-function guix-directory "guix-repl" t)
+
+(defun build-farm-cuirass-jobset-file-action (button)
+  "Find file of BUTTON.
+The BUTTON file name is relative to guix source tree."
+  (let ((file-name (or (button-get button 'file-name)
+                       (button-label button))))
+    (if (require 'guix-repl nil t)
+        (find-file (expand-file-name file-name (guix-directory)))
+      (error "Sorry, no idea where '%s' is placed :-)"
+             file-name))))
+
+(define-button-type 'build-farm-cuirass-jobset-file
+  :supertype 'bui-file
+  'face 'build-farm-cuirass-jobset-file
+  'action #'build-farm-cuirass-jobset-file-action)
+
+
+;;; Cuirass Jobset 'info'
+
+(build-farm-define-interface cuirass-jobset info
+  :mode-name "Cuirass-Jobset-Info"
+  :buffer-name "*Farm Jobset Info*"
+  :format '((name nil (simple bui-info-heading))
+            nil
+            build-farm-jobset-info-insert-url
+            nil
+            (load-path-inputs format (format))
+            (package-path-inputs format (format))
+            nil
+            (proc-input format (format))
+            (proc-file format (format build-farm-cuirass-jobset-file))
+            (proc format (format))
+            (proc-args simple
+                       (build-farm-cuirass-jobset-info-insert-proc-args))
+            (inputs simple (build-farm-cuirass-jobset-info-insert-inputs))))
+
+(bui-define-interface build-farm-cuirass-jobset-args info
+  :format '((subset format (format))
+            (systems format (format))) ; TODO make system buttons
+  :reduced? t)
+
+(bui-define-interface build-farm-cuirass-jobset-inputs info
+  :format '((name format (format))
+            (url format (format bui-url))
+            (branch format (format))
+            (load-path format (format))
+            (tag format (format))
+            (commit format (format))
+            (no-compile? format (format)))
+  :reduced? t)
+
+(defun build-farm-cuirass-jobset-info-insert-file (file-name)
+  "Insert FILE-NAME of a jobset's procedure at point."
+  (bui-insert-non-nil file-name
+    (bui-info-insert-value-indent
+     file-name 'build-farm-jobset-proc-file)))
+
+(defun build-farm-cuirass-jobset-info-insert-proc-args (args)
+  "Insert procedure ARGS at point."
+  (bui-newline)
+  (bui-info-insert-entry args 'build-farm-cuirass-jobset-args 1))
+
+(defun build-farm-cuirass-jobset-info-insert-inputs (inputs)
+  "Insert jobset INPUTS at point."
+  (dolist (input inputs)
+    (bui-newline)
+    (bui-info-insert-entry input 'build-farm-cuirass-jobset-inputs 1)))
+
+
+;;; Cuirass Jobset 'list'
+
+(build-farm-define-interface cuirass-jobset list
+  :describe-function 'build-farm-list-describe
+  :mode-name "Cuirass-Jobset-List"
+  :buffer-name "*Farm Jobsets*"
+  :format '((name nil 30 t)
+            (proc-input nil 20 t)
+            (proc-file build-farm-cuirass-jobset-list-get-file 20 t)))
+
+(defun build-farm-cuirass-jobset-list-get-file (file-name &optional _)
+  "Return FILE-NAME button specification for `tabulated-list-entries'."
+  (bui-get-non-nil file-name
+    (list file-name
+          :type 'build-farm-cuirass-jobset-file
+          'file-name file-name)))
+
+
 ;;; Interactive commands
 
 ;;;###autoload
-(defun build-farm-jobsets (project)
-  "Display jobsets of PROJECT."
-  (interactive (list (build-farm-read-project)))
-  (build-farm-get-display build-farm-url 'hydra-jobset
-                          'project project))
+(defun build-farm-jobsets (&optional project)
+  "Display jobsets of PROJECT.
+PROJECT is required for Hydra build farm and is not needed for
+Cuirass."
+  (interactive
+   (when (eq 'hydra (build-farm-url-type))
+     (list (build-farm-read-project))))
+  (if (eq 'cuirass (build-farm-url-type))
+      (build-farm-get-display build-farm-url 'cuirass-jobset 'all)
+    (build-farm-get-display build-farm-url 'hydra-jobset
+                            'project project)))
 
 ;; Info returned for multiple jobsets (from "api/jobsets") and for a
 ;; single jobset (from "jobset") are completely different!  Compare:
