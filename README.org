@@ -33,3 +33,16 @@ These lists provide some key bindings, the main of which are:
 - =h= (hint): allows you to look at the provided key bindings;
 - =RET=: displays "info" buffer for the current entry or several marked
   entries (marked with =m= key).
+
+* Differences between Cuirass and Hydra
+
+In the beginning there was Nix, and Hydra was its build farm.  Then
+there appeared Guix which is technically very similar to Nix, except it
+is written in Guile.  At first, Guix also used Hydra.  Then Guix decided
+to make its own build farm, also written in Guile.  So there appeared
+Cuirass.  And Cuirass was very similar to Hydra, but afterwards it
+diverged quite a lot.
+
+In particular, Cuirass does not have a notion of "project" anymore.
+Hydra has "projects" and "jobsets" inside each project.  But Cuirass
+decided that projects are not needed, so it has only "jobsets".
