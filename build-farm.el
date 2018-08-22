@@ -199,19 +199,34 @@ Please use 'jobsets' instead")))
 See `build-farm-search-url' for the meaning of ROOT-URL,
 SEARCH-TYPE and ARGS."
   (unless (eq search-type 'fake)
-    (if (eq entry-type 'project)
-        (if (memq search-type '(id name))
-            (bui-entries-by-ids
-             (build-farm-get-entries root-url 'project 'all)
-             args)
-          (or (build-farm-cache-get root-url 'projects)
-              (let ((entries (apply #'build-farm-get-entries-1
-                                    root-url entry-type search-type args)))
-                (build-farm-cache-set root-url 'projects entries)
-                (build-farm-cache-set root-url 'projects-received t)
-                entries)))
+    (cond
+     ((memq entry-type '(project cuirass-jobset))
+      (cl-case search-type
+        ((id)
+         (bui-entries-by-ids
+          (build-farm-get-entries root-url entry-type 'all)
+          args))
+        ((name)
+         (delq nil
+               (mapcar (lambda (name)
+                         (bui-entry-by-param
+                          (build-farm-get-entries root-url entry-type 'all)
+                          'name name))
+                       args)))
+        ((all)
+         ;; 'roots' mean: projects for Hydra; jobsets for Cuirass.
+         (or (build-farm-cache-get root-url 'roots)
+             (progn
+               ;; Set 'roots-received' before the actual receiving
+               ;; because there may be an error during this receiving.
+               (build-farm-cache-set root-url 'roots-received t)
+               (let ((entries (apply #'build-farm-get-entries-1
+                                     root-url entry-type search-type args)))
+                 (build-farm-cache-set root-url 'roots entries)
+                 entries))))))
+     (t
       (apply #'build-farm-get-entries-1
-             root-url entry-type search-type args))))
+             root-url entry-type search-type args)))))
 
 (defun build-farm-get-entries-1 (root-url entry-type search-type
                                           &rest args)
@@ -232,20 +247,21 @@ SEARCH-TYPE and ARGS."
                              (build-farm-filters entry-type))))
     entries))
 
-(defun build-farm-get-project-entries-once (&optional url)
-  "Return project entries for URL build farm.
+(defun build-farm-get-root-entries-once (root-type &optional url)
+  "Return ROOT-TYPE entries for URL build farm.
+ROOT-TYPE should be `project' or `cuirass-jobset' symbol.
 If projects have already been received, return them from
 `build-farm-cache'.  If URL is nil, use variable
 `build-farm-url'."
   (or url (setq url build-farm-url))
-  (if (build-farm-cache-get url 'projects-received)
-      (build-farm-cache-get url 'projects)
-    ;; Cuirass does not support API for projects, so we will
-    ;; have an error from `build-farm-receive-data'.
+  (unless (build-farm-cache-get url 'roots-received)
+    ;; If there is some error in `build-farm-receive-data', we don't
+    ;; want to fail, because this procedure is used for minibuffer
+    ;; readers.
     (with-demoted-errors "Error: %S"
       (require 'build-farm-project)
-      (build-farm-cache-set url 'projects-received t)
-      (build-farm-get-entries url 'project 'all))))
+      (build-farm-get-entries url root-type 'all)))
+  (build-farm-cache-get url 'roots))
 
 (defun build-farm-get-display (root-url entry-type search-type
                                         &rest args)
@@ -285,14 +301,16 @@ SEARCH-TYPE and ARGS."
 (defun build-farm-project-names (&optional url)
   "Return projects for URL build farm."
   (mapcar #'bui-entry-id
-          (build-farm-get-project-entries-once url)))
+          (build-farm-get-root-entries-once 'project url)))
 
 (cl-defun build-farm-jobset-names (&key url project)
   "Return jobsets for PROJECT from URL build farm."
   (if (eq 'cuirass (build-farm-url-type url))
-      '()                       ; TODO get from cache
+      (mapcar (lambda (entry)
+                (bui-entry-non-void-value entry 'name))
+              (build-farm-get-root-entries-once 'cuirass-jobset url))
     (bui-entry-non-void-value
-     (bui-entry-by-id (build-farm-get-project-entries-once url)
+     (bui-entry-by-id (build-farm-get-root-entries-once 'project url)
                       project)
      'jobsets)))
 
