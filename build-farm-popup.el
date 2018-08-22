@@ -53,11 +53,8 @@
                (?n "number"
                    build-farm-set-number-of-builds
                    build-farm-popup-format-number-of-builds))
-  :options  '(;; "Options for latest and queued builds"
-              ;; (?n "Number of builds" "number="
-              ;;     magit-popup-read-number)
-              "Options for latest builds"
-              (?p "project" "project=" build-farm-read-project)
+  :options  '("Options for latest builds"
+              (?p "project" "project=" build-farm-popup-read-project)
               (?j "jobset"  "jobset=" build-farm-popup-read-jobset)
               (?J "job"     "job=")
               (?s "system"  "system=" build-farm-read-system))
@@ -65,14 +62,21 @@
              (?q "queued" build-farm-popup-queued-builds)
              (?i "build by ID" build-farm-build)))
 
+(defun build-farm-popup-read-project (&optional prompt initial-input)
+  "Read project from minibuffer.
+See `completing-read' for PROMPT and INITIAL-INPUT."
+  (build-farm-read-project :prompt prompt
+                           :initial-input initial-input))
+
 (defun build-farm-popup-read-jobset (&optional prompt initial-input)
   "Read jobset for the current project from minibuffer.
 See `completing-read' for PROMPT and INITIAL-INPUT."
   (build-farm-read-jobset
-   (plist-get (build-farm-popup-parse-build-args
-               (magit-popup-get-args))
-              :project)
-   prompt initial-input))
+   :prompt prompt
+   :initial-input initial-input
+   :project (plist-get (build-farm-popup-parse-build-args
+                        (magit-popup-get-args))
+                       :project)))
 
 (defun build-farm-popup-variable-value (var-name)
   "Return string formatted for popup buffer.

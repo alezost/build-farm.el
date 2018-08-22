@@ -78,11 +78,19 @@ If `current-prefix-arg' is specified, just return
                                                     job system)
   "Prompt for and return a list of 'latest builds' arguments."
   (let* ((number      (build-farm-build-read-number-maybe))
-         (project     (if current-prefix-arg
-                          (build-farm-read-project nil project)
-                        project))
+         (url         (build-farm-current-url))
+         (url-type    (build-farm-url-type url))
+         (project     (unless (eq 'cuirass url-type)
+                        (if current-prefix-arg
+                            (build-farm-read-project
+                             :url url
+                             :initial-input project)
+                          project)))
          (jobset      (if current-prefix-arg
-                          (build-farm-read-jobset project nil jobset)
+                          (build-farm-read-jobset
+                           :url url
+                           :project project
+                           :initial-input jobset)
                         jobset))
          (job-or-name (if current-prefix-arg
                           (build-farm-read-job nil job)

@@ -187,6 +187,12 @@ If URL is nil, use variable `build-farm-url'."
   "Return build farm type of the current buffer."
   (build-farm-url-type (build-farm-current-url)))
 
+(defun build-farm-check-project-support (&optional url)
+  "Raise an error if URL build farm does not support projects."
+  (when (eq 'cuirass (build-farm-url-type (or url build-farm-url)))
+    (error "Cuirass does not have a notion of 'project'.
+Please use 'jobsets' instead")))
+
 (defun build-farm-get-entries (root-url entry-type search-type
                                         &rest args)
   "Receive ENTRY-TYPE entries from cache or build farm.
@@ -281,18 +287,14 @@ SEARCH-TYPE and ARGS."
   (mapcar #'bui-entry-id
           (build-farm-get-project-entries-once url)))
 
-(defun build-farm-jobset-names (project &optional url)
+(cl-defun build-farm-jobset-names (&key url project)
   "Return jobsets for PROJECT from URL build farm."
-  (bui-entry-non-void-value
-   (bui-entry-by-id (build-farm-get-project-entries-once url)
-                    project)
-   'jobsets))
-
-(build-farm-define-readers
- :require-match nil
- :completions-getter build-farm-project-names
- :single-reader build-farm-read-project
- :single-prompt "Project: ")
+  (if (eq 'cuirass (build-farm-url-type url))
+      '()                       ; TODO get from cache
+    (bui-entry-non-void-value
+     (bui-entry-by-id (build-farm-get-project-entries-once url)
+                      project)
+     'jobsets)))
 
 (build-farm-define-readers
  :require-match nil
@@ -305,12 +307,22 @@ SEARCH-TYPE and ARGS."
  :single-reader build-farm-read-system
  :single-prompt "System: ")
 
-(defun build-farm-read-jobset (project &optional prompt initial-input)
-  "Read jobset for PROJECT from minibuffer.
+(cl-defun build-farm-read-project (&key url prompt initial-input)
+  "Read project name for Hydra URL from minibuffer.
+See `completing-read' for PROMPT and INITIAL-INPUT."
+  (build-farm-check-project-support url)
+  (build-farm-completing-read
+   (or prompt "Project: ")
+   (build-farm-project-names url)
+   nil nil initial-input nil nil))
+
+(cl-defun build-farm-read-jobset (&key url project prompt initial-input)
+  "Read jobset for PROJECT from URL build farm from minibuffer.
 See `completing-read' for PROMPT and INITIAL-INPUT."
   (build-farm-completing-read
    (or prompt "Jobset: ")
-   (build-farm-jobset-names project)
+   (build-farm-jobset-names :url url
+                            :project project)
    nil nil initial-input))
 
 

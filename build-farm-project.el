@@ -180,12 +180,14 @@ ARGS."
 (defun build-farm-projects ()
   "Display build farm projects."
   (interactive)
+  (build-farm-check-project-support)
   (build-farm-get-display build-farm-url 'project 'all))
 
 ;;;###autoload
 (defun build-farm-project (project)
   "Display build farm PROJECT."
   (interactive (list (build-farm-read-project)))
+  (build-farm-check-project-support)
   (bui-get-display-entries 'build-farm-project 'info
                            (list build-farm-url 'id project)))
 
