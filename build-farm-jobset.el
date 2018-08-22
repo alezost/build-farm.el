@@ -219,6 +219,7 @@ The BUTTON file name is relative to guix source tree."
             nil
             build-farm-jobset-info-insert-url
             nil
+            build-farm-cuirass-jobset-info-insert-builds
             (load-path-inputs format (format))
             (package-path-inputs format (format))
             nil
@@ -243,6 +244,13 @@ The BUTTON file name is relative to guix source tree."
             (commit format (format))
             (no-compile? format (format)))
   :reduced? t)
+
+(defun build-farm-cuirass-jobset-info-insert-builds (entry)
+  "Insert 'Builds' button for the jobset ENTRY."
+  (let ((jobset (bui-entry-non-void-value entry 'name)))
+    (build-farm-build-info-insert-builds-button
+     :jobset jobset))
+  (bui-newline))
 
 (defun build-farm-cuirass-jobset-info-insert-file (file-name)
   "Insert FILE-NAME of a jobset's procedure at point."
