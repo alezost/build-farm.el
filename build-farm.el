@@ -75,7 +75,7 @@
   :group 'build-farm-faces)
 
 (defface build-farm-info-jobset
-  '((t :inherit link))
+  '((t :inherit button))
   "Face for jobsets in 'info' buffers."
   :group 'build-farm-faces)
 
@@ -108,11 +108,12 @@
   'action 'build-farm-project-button-action)
 
 (define-button-type 'build-farm-jobset
-  :supertype 'bui-url
+  :supertype 'bui
+  'help-echo "Display jobset info"
   'face 'build-farm-info-jobset)
 
 (defun build-farm-info-insert-hydra-jobset (project jobset)
-  "Insert info about JOBSET of the PROJECT at point."
+  "Insert button for Hydra JOBSET of the PROJECT at point."
   (let ((url (build-farm-jobset-url
               :root-url (build-farm-current-url)
               :project project
@@ -120,6 +121,19 @@
     (bui-insert-button jobset 'build-farm-jobset
                        'url url
                        'help-echo (format "Browse %s" url))))
+
+(defun build-farm-info-insert-cuirass-jobset (jobset)
+  "Insert button for Cuirass JOBSET at point."
+  (bui-insert-button
+   jobset 'build-farm-jobset
+   'action (lambda (btn)
+             (require 'build-farm-jobset)
+             (bui-get-display-entries
+              'build-farm-cuirass-jobset 'info
+              (list (build-farm-current-url)
+                    'name
+                    (button-get btn 'jobset))))
+   'jobset jobset))
 
 
 ;;; System types

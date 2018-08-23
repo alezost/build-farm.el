@@ -349,8 +349,11 @@ It should be a '%s'-sequence.")
 
 (defun build-farm-build-info-insert-jobset (jobset entry)
   "Insert JOBSET for build ENTRY at point."
-  (build-farm-info-insert-hydra-jobset
-   (bui-entry-non-void-value entry 'project) jobset)
+  (if (eq 'hydra (build-farm-current-url-type))
+      (build-farm-info-insert-hydra-jobset
+       (bui-entry-non-void-value entry 'project)
+       jobset)
+    (build-farm-info-insert-cuirass-jobset jobset))
   (bui-insert-indent)
   (build-farm-build-info-insert-builds-button
    :project (bui-entry-non-void-value entry 'project)
