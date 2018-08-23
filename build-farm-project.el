@@ -91,6 +91,16 @@
 (defun build-farm-project-info-insert-jobsets (jobsets entry)
   "Insert JOBSETS of the project ENTRY."
   (let ((project (bui-entry-id entry)))
+    (when (cdr jobsets)
+      (bui-insert-indent)
+      (bui-insert-action-button
+       "List"
+       (lambda (btn)
+         (build-farm-get-display
+          (build-farm-current-url) 'hydra-jobset
+          'project (button-get btn 'project)))
+       "Show jobsets in a 'list' buffer"
+       'project project))
     (dolist (jobset jobsets)
       (bui-newline)
       (bui-insert-indent)
