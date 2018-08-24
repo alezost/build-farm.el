@@ -270,6 +270,7 @@ See `build-farm-build-status-alist'."
             nil
             build-farm-build-info-insert-more-button
             build-farm-build-info-insert-url
+            nil
             (queued-time format (time))
             (start-time format (time))
             (stop-time format (time))

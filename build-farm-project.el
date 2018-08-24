@@ -48,6 +48,7 @@
             (description nil (simple build-farm-project-info-description))
             nil
             build-farm-project-info-insert-url
+            nil
             (id format (format))
             (owner format (format build-farm-project-info-owner))
             (enabled format build-farm-project-info-insert-enabled)

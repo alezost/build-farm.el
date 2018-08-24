@@ -73,6 +73,7 @@
   :format '((name nil (simple bui-info-heading))
             nil
             build-farm-jobset-info-insert-url
+            nil
             (project   format build-farm-hydra-jobset-info-insert-project)
             (scheduled format (format build-farm-hydra-jobset-info-scheduled))
             (succeeded format (format build-farm-hydra-jobset-info-succeeded))
