@@ -37,7 +37,8 @@
 (defun build-farm-guess-url ()
   "Return URL of a build farm that a user probably wants to use."
   (if (eq 'guix build-farm-preferred-package-manager)
-      "https://hydra.gnu.org"
+      ;; hydra.gnu.org is usually unresponsive, so use berlin instead.
+      "https://berlin.guixsd.org"
     "https://hydra.nixos.org"))
 
 (defun build-farm-urls ()
