@@ -26,6 +26,7 @@
 (require 'magit-popup)
 (require 'build-farm-url)
 (require 'build-farm-build)
+(require 'build-farm-evaluation)
 
 (defgroup build-farm-popup nil
   "Variables for popup interface for build farm commands."
@@ -40,11 +41,37 @@
                    build-farm-popup-format-url))
   :actions '((?p "projects" build-farm-projects)
              (?j "jobsets"  build-farm-jobsets)
-             (?b "builds"   build-farm-build-popup)))
+             (?b "builds"   build-farm-build-popup)
+             (?e "evaluations" build-farm-evaluation-popup-maybe)))
 
 ;;;###autoload
 (defalias 'build-farm #'build-farm-popup
   "Popup interface for the available build farm commands.")
+
+(defun build-farm-popup-variable-value (var-name)
+  "Return string formatted for popup buffer.
+String is made of variable VAR-NAME and its value."
+  (concat (propertize (symbol-name var-name)
+                      'face font-lock-variable-name-face)
+          " "
+          (propertize (prin1-to-string (symbol-value var-name))
+                      'face 'magit-popup-option-value)))
+
+(defun build-farm-popup-format-url ()
+  "Return URL string, formatted for '\\[build-farm]'."
+  (build-farm-popup-variable-value 'build-farm-url))
+
+(defun build-farm-evaluation-popup-maybe (&optional arg)
+  "Display popup for evaluations if it is supported.
+ARG is passed to `build-farm-evaluation-popup'."
+  (interactive "P")
+  (if (eq 'hydra (build-farm-url-type))
+      (error "Sorry, Hydra evaluations are not supported because of
+<https://github.com/NixOS/hydra/issues/582>")
+    (build-farm-evaluation-popup arg)))
+
+
+;;; Builds
 
 (magit-define-popup build-farm-build-popup
   "Show popup buffer for builds."
@@ -78,19 +105,6 @@ See `completing-read' for PROMPT and INITIAL-INPUT."
                         (magit-popup-get-args))
                        :project)))
 
-(defun build-farm-popup-variable-value (var-name)
-  "Return string formatted for popup buffer.
-String is made of variable VAR-NAME and its value."
-  (concat (propertize (symbol-name var-name)
-                      'face font-lock-variable-name-face)
-          " "
-          (propertize (prin1-to-string (symbol-value var-name))
-                      'face 'magit-popup-option-value)))
-
-(defun build-farm-popup-format-url ()
-  "Return URL string, formatted for '\\[build-farm]'."
-  (build-farm-popup-variable-value 'build-farm-url))
-
 (defun build-farm-popup-format-number-of-builds ()
   "Return number of builds, formatted for '\\[build-farm-build-popup]'."
   (build-farm-popup-variable-value 'build-farm-number-of-builds))
@@ -121,6 +135,28 @@ ARGS are read from the current popup buffer."
   "Display `build-farm-number-of-builds' of queued builds."
   (interactive)
   (build-farm-queued-builds build-farm-number-of-builds))
+
+
+;;; Evaluations
+
+(magit-define-popup build-farm-evaluation-popup
+  "Show popup buffer for evaluations."
+  'build-farm-popup
+  :variables '((?n "number"
+                   build-farm-set-number-of-evaluations
+                   build-farm-popup-format-number-of-evaluations))
+  :actions '((?l "latest" build-farm-popup-latest-evaluations)))
+
+(defun build-farm-popup-format-number-of-evaluations ()
+  "Return number of evaluations for '\\[build-farm-evaluation-popup]'."
+  (build-farm-popup-variable-value 'build-farm-number-of-evaluations))
+
+(defun build-farm-popup-latest-evaluations ()
+  "Display `build-farm-number-of-evaluations' of latest evaluations."
+  (interactive)
+  (build-farm-latest-evaluations
+   (or build-farm-number-of-evaluations
+       (build-farm-evaluation-read-number))))
 
 (provide 'build-farm-popup)
 

@@ -190,6 +190,22 @@ See function `build-farm-url' for the meaning of ROOT-URL."
       (build-farm-url root-url "project/" project)
     (build-farm-url root-url)))
 
+(cl-defun build-farm-evaluation-url (&key root-url evaluation)
+  "Return URL with build farm EVALUATION (number or string).
+See function `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-url root-url "eval/"
+                  (if (stringp evaluation)
+                      evaluation
+                    (number-to-string evaluation))))
+
+(cl-defun build-farm-latest-evaluations-api-url (number &key root-url)
+  "Return API URL to receive the NUMBER of latest evaluations.
+See function `build-farm-url' for the meaning of ROOT-URL."
+  (build-farm-api-url
+   "evaluations"
+   `(("nr" . ,number))
+   :root-url root-url))
+
 
 ;;; Receiving data from a build farm
 

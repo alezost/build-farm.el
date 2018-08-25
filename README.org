@@ -7,8 +7,8 @@ farms for [[https://nixos.org/nix/][Nix]] and [[https://www.gnu.org/software/gui
 | [[https://hydra.gnu.org]]     | Hydra for Guix   |
 | [[https://berlin.guixsd.org]] | Cuirass for Guix |
 
-This package allows you to look at builds, jobsets and projects of these
-build farms.
+This package allows you to look at builds, jobsets, evaluations and
+projects of these build farms.
 
 * Usage
 
@@ -21,6 +21,7 @@ Alternatively, you can use the following =M-x= commands directly:
 - =build-farm-projects=
 - =build-farm-project=
 - =build-farm-jobsets=
+- =build-farm-latest-evaluations=
 - =build-farm-latest-builds=
 - =build-farm-queued-builds=
 - =build-farm-build=
