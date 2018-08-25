@@ -58,7 +58,7 @@
   (concat project "/" jobset))
 
 (defun build-farm-hydra-jobset-filter-id (entry)
-  "Add 'ID' parameter to 'jobset' ENTRY."
+  "Add ID parameter to Hydra jobset ENTRY."
   (cons `(id . ,(build-farm-hydra-jobset-id
                  (bui-entry-non-void-value entry 'project)
                  (bui-entry-non-void-value entry 'name)))
@@ -183,10 +183,20 @@ ARGS."
 
 (build-farm-define-entry-type cuirass-jobset
   :search-types '((all . build-farm-cuirass-jobsets-url))
+  :filters '(build-farm-cuirass-jobset-filter-id)
   :titles '((proc . "Procedure")
             (proc-input . "Procedure input")
             (proc-file . "Procedure file")
             (proc-args . "Procedure arguments")))
+
+(defun build-farm-cuirass-jobset-filter-id (entry)
+  "Add ID parameter to Cuirass jobset ENTRY if needed."
+  ;; In the past, Cuirass returned jobset ID but not anymore (is it
+  ;; temporary?).
+  (if (bui-void-value? (bui-entry-id entry))
+      (cons `(id . ,(bui-entry-non-void-value entry 'name))
+            entry)
+    entry))
 
 (defface build-farm-cuirass-jobset-file
   '((t :inherit bui-file-name))
