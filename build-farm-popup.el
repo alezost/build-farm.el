@@ -128,13 +128,16 @@ See `completing-read' for PROMPT and INITIAL-INPUT."
 ARGS are read from the current popup buffer."
   (interactive (build-farm-popup-build-args))
   (apply #'build-farm-latest-builds
-         build-farm-number-of-builds
+         (or build-farm-number-of-builds
+             (build-farm-build-read-number))
          (build-farm-popup-parse-build-args args)))
 
 (defun build-farm-popup-queued-builds ()
   "Display `build-farm-number-of-builds' of queued builds."
   (interactive)
-  (build-farm-queued-builds build-farm-number-of-builds))
+  (build-farm-queued-builds
+   (or build-farm-number-of-builds
+       (build-farm-build-read-number))))
 
 
 ;;; Evaluations
