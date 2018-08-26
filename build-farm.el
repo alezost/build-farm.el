@@ -3,7 +3,7 @@
 ;; Copyright © 2015–2018 Alex Kost <alezost@gmail.com>
 
 ;; Author: Alex Kost <alezost@gmail.com>
-;; Version: 0.1
+;; Version: 0.2
 ;; URL: https://gitlab.com/alezost-emacs/build-farm
 ;; Keywords: tools
 ;; Package-Requires: ((emacs "24.4") (bui "1.1.0") (magit-popup "2.1.0"))
