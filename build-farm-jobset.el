@@ -105,7 +105,7 @@
   (let ((jobset (bui-entry-non-void-value entry 'name)))
     (bui-insert-button project 'build-farm-project)
     (bui-insert-indent)
-    (build-farm-build-info-insert-builds-button
+    (build-farm-info-insert-builds-button
      :project project
      :jobset jobset)))
 
@@ -259,7 +259,7 @@ The BUTTON file name is relative to guix source tree."
 (defun build-farm-cuirass-jobset-info-insert-builds (entry)
   "Insert 'Builds' button for the jobset ENTRY."
   (let ((jobset (bui-entry-non-void-value entry 'name)))
-    (build-farm-build-info-insert-builds-button
+    (build-farm-info-insert-builds-button
      :jobset jobset))
   (bui-newline))
 

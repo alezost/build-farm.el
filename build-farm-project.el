@@ -111,7 +111,7 @@
   "Insert info about JOBSET of the PROJECT at point."
   (build-farm-info-insert-hydra-jobset project jobset)
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :project project
    :jobset jobset))
 

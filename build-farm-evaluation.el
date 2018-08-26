@@ -86,7 +86,7 @@ command.  If nil, always prompt for the number of evaluations."
   "Insert info about Cuirass JOBSET at point."
   (build-farm-info-insert-cuirass-jobset jobset)
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :jobset jobset))
 
 

@@ -117,6 +117,37 @@ If `current-prefix-arg' is specified, just return
           :job     job
           :system  system)))
 
+(defun build-farm-build-button-action (button)
+  "Display latest builds according to BUTTON."
+  (let ((args (build-farm-build-latest-prompt-args
+               :project (button-get button 'project)
+               :jobset  (button-get button 'jobset)
+               :job     (button-get button 'job)
+               :system  (button-get button 'system))))
+    (apply #'build-farm-get-display
+           (build-farm-current-url)
+           'build 'latest args)))
+
+(cl-defun build-farm-info-insert-builds-button
+    (&key project jobset job system)
+  "Insert 'Builds' button for PROJECT, JOBSET, JOB, SYSTEM."
+  (bui-insert-action-button
+   "Builds"
+   #'build-farm-build-button-action
+   (concat "Show latest builds"
+           (let ((thing (cond (job "job")
+                              (system "system")
+                              (jobset "jobset")
+                              (project "project"))))
+             (if thing
+                 (concat " for this " thing)
+               ""))
+           " (with prefix, prompt for all parameters)")
+   'project project
+   'jobset jobset
+   'job job
+   'system system))
+
 (declare-function guix-build-log-mode "guix-build-log" t)
 
 (defun build-farm-build-view-log (id &optional root-url)
@@ -313,39 +344,11 @@ It should be a '%s'-sequence.")
           (bui-replace-entry (bui-current-entries) id new-entry))
     (bui-redisplay)))
 
-(cl-defun build-farm-build-info-insert-builds-button
-    (&key project jobset job system)
-  "Insert 'Builds' button for PROJECT, JOBSET, JOB, SYSTEM."
-  (bui-insert-action-button
-   "Builds"
-   (lambda (btn)
-     (let ((args (build-farm-build-latest-prompt-args
-                  :project (button-get btn 'project)
-                  :jobset  (button-get btn 'jobset)
-                  :job     (button-get btn 'job)
-                  :system  (button-get btn 'system))))
-       (apply #'build-farm-get-display
-              (build-farm-current-url)
-              'build 'latest args)))
-   (concat "Show latest builds"
-           (let ((thing (cond (job "job")
-                              (system "system")
-                              (jobset "jobset")
-                              (project "project"))))
-             (if thing
-                 (concat " for this " thing)
-               ""))
-           " (with prefix, prompt for all parameters)")
-   'project project
-   'jobset jobset
-   'job job
-   'system system))
-
 (defun build-farm-build-info-insert-project (project entry)
   "Insert PROJECT for build ENTRY at point."
   (bui-insert-button project 'build-farm-project)
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :project (bui-entry-non-void-value entry 'project)))
 
 (defun build-farm-build-info-insert-jobset (jobset entry)
@@ -356,7 +359,7 @@ It should be a '%s'-sequence.")
        jobset)
     (build-farm-info-insert-cuirass-jobset jobset))
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :project (bui-entry-non-void-value entry 'project)
    :jobset  (bui-entry-non-void-value entry 'jobset)))
 
@@ -364,7 +367,7 @@ It should be a '%s'-sequence.")
   "Insert JOB for build ENTRY at point."
   (bui-format-insert job 'build-farm-info-job)
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :project (bui-entry-non-void-value entry 'project)
    :jobset  (bui-entry-non-void-value entry 'jobset)
    :job     (bui-entry-non-void-value entry 'job)))
@@ -373,7 +376,7 @@ It should be a '%s'-sequence.")
   "Insert SYSTEM for build ENTRY at point."
   (bui-format-insert system 'build-farm-info-system)
   (bui-insert-indent)
-  (build-farm-build-info-insert-builds-button
+  (build-farm-info-insert-builds-button
    :system  (bui-entry-non-void-value entry 'system)))
 
 (defun build-farm-build-info-insert-url (entry)
