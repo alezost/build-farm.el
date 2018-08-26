@@ -287,9 +287,23 @@ The BUTTON file name is relative to guix source tree."
   :describe-function 'build-farm-list-describe
   :mode-name "Cuirass-Jobset-List"
   :buffer-name "*Farm Jobsets*"
+  :hint 'build-farm-cuirass-jobset-list-hint
   :format '((name nil 30 t)
             (proc-input nil 20 t)
             (proc-file build-farm-cuirass-jobset-list-get-file 20 t)))
+
+(let ((map build-farm-cuirass-jobset-list-mode-map))
+  (define-key map (kbd "B") 'build-farm-cuirass-jobset-list-latest-builds))
+
+(defvar build-farm-cuirass-jobset-list-default-hint
+  '(("\\[build-farm-cuirass-jobset-list-latest-builds]")
+    " show latest builds of the current jobset;\n"))
+
+(defun build-farm-cuirass-jobset-list-hint ()
+  "Return hint string for a jobset-list buffer."
+  (bui-format-hints
+   build-farm-cuirass-jobset-list-default-hint
+   (bui-default-hint)))
 
 (defun build-farm-cuirass-jobset-list-get-file (file-name &optional _)
   "Return FILE-NAME button specification for `tabulated-list-entries'."
@@ -297,6 +311,18 @@ The BUTTON file name is relative to guix source tree."
     (list file-name
           :type 'build-farm-cuirass-jobset-file
           'file-name file-name)))
+
+(defun build-farm-cuirass-jobset-list-latest-builds (number &rest args)
+  "Display latest NUMBER of builds of the current jobset.
+Interactively, use `build-farm-number-of-builds' variable for
+NUMBER.  With prefix argument, prompt for it and for the other
+ARGS."
+  (interactive
+   (let ((entry (bui-list-current-entry)))
+     (build-farm-build-latest-prompt-args
+      :jobset (bui-entry-non-void-value entry 'name))))
+  (apply #'build-farm-get-display
+         (build-farm-current-url) 'build 'latest number args))
 
 
 ;;; Interactive commands
