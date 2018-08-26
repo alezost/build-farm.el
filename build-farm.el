@@ -86,7 +86,7 @@
   :group 'build-farm-faces)
 
 (defface build-farm-info-system
-  '((t))
+  '((t :inherit button))
   "Face for system names in 'info' buffers."
   :group 'build-farm-faces)
 

@@ -55,6 +55,13 @@ for the number of builds."
   :type 'integer
   :group 'build-farm-build)
 
+(define-button-type 'build-farm-system
+  :supertype 'bui
+  'action #'build-farm-build-button-action
+  'help-echo (concat "Show latest builds for this system "
+                     "(with prefix, prompt for all parameters)")
+  'face 'build-farm-info-system)
+
 (defun build-farm-set-number-of-builds (number)
   "Set `build-farm-number-of-builds' to NUMBER."
   (interactive (list (build-farm-build-read-number)))
@@ -128,6 +135,14 @@ If `current-prefix-arg' is specified, just return
            (build-farm-current-url)
            'build 'latest args)))
 
+(defun build-farm-build-button-system-action (button)
+  "Display latest builds according to system BUTTON."
+  (let ((args (build-farm-build-latest-prompt-args
+               :system (button-label button))))
+    (apply #'build-farm-get-display
+           (build-farm-current-url)
+           'build 'latest args)))
+
 (cl-defun build-farm-info-insert-builds-button
     (&key project jobset job system)
   "Insert 'Builds' button for PROJECT, JOBSET, JOB, SYSTEM."
@@ -147,6 +162,21 @@ If `current-prefix-arg' is specified, just return
    'jobset jobset
    'job job
    'system system))
+
+(cl-defun build-farm-info-insert-system-button
+    (system &key project jobset job)
+  "Insert button to display builds for SYSTEM, PROJECT, JOBSET, JOB."
+  (bui-insert-button system 'build-farm-system
+                     'project project
+                     'jobset jobset
+                     'job job
+                     'system system))
+
+(defun build-farm-info-insert-systems (systems)
+  "Insert SYSTEMS at point."
+  (bui-info-insert-value-format
+   systems 'build-farm-system
+   'action #'build-farm-build-button-system-action))
 
 (declare-function guix-build-log-mode "guix-build-log" t)
 
@@ -374,7 +404,7 @@ It should be a '%s'-sequence.")
 
 (defun build-farm-build-info-insert-system (system entry)
   "Insert SYSTEM for build ENTRY at point."
-  (bui-format-insert system 'build-farm-info-system)
+  (insert system)
   (bui-insert-indent)
   (build-farm-info-insert-builds-button
    :system  (bui-entry-non-void-value entry 'system)))

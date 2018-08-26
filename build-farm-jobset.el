@@ -243,7 +243,7 @@ The BUTTON file name is relative to guix source tree."
 
 (bui-define-interface build-farm-cuirass-jobset-args info
   :format '((subset format (format))
-            (systems format (format))) ; TODO make system buttons
+            (systems format (build-farm-info-insert-systems)))
   :reduced? t)
 
 (bui-define-interface build-farm-cuirass-jobset-inputs info
