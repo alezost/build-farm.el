@@ -188,7 +188,11 @@ If URL is nil, use variable `build-farm-url'."
   (message "The build farm cache has been cleared."))
 
 
-(defvar build-farm-job-regexp ".+\\.[^.]+"
+(defvar build-farm-job-regexp
+  (concat ".+\\."
+          (regexp-opt (append build-farm-guix-system-types
+                              build-farm-nix-system-types))
+          "\\'")
   "Regexp matching full name of a job (including system).")
 
 (defun build-farm-job-name-specification (name version)
