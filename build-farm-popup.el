@@ -82,8 +82,8 @@ ARG is passed to `build-farm-evaluation-popup'."
                    build-farm-popup-format-number-of-builds))
   :options  '("Options for latest builds"
               (?p "project" "project=" build-farm-popup-read-project)
-              (?j "jobset"  "jobset=" build-farm-popup-read-jobset)
-              (?J "job"     "job=")
+              (?J "jobset"  "jobset=" build-farm-popup-read-jobset)
+              (?j "job"     "job=")
               (?s "system"  "system=" build-farm-read-system))
   :actions '((?l "latest" build-farm-popup-latest-builds)
              (?q "queued" build-farm-popup-queued-builds)
