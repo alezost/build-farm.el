@@ -117,7 +117,10 @@ If `current-prefix-arg' is specified, just return
                         system))
          (job         (or job
                           (and job-or-name
-                               (concat job-or-name "." system)))))
+                               (concat job-or-name "." system))))
+         ;; Job specification already includes system, so we don't need
+         ;; system, if job is specified.
+         (system      (unless job system)))
     (list number
           :project project
           :jobset  jobset
