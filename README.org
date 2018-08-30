@@ -1,3 +1,7 @@
+[[file:https://img.shields.io/badge/license-GPL_3-orange.svg]]
+[[http://melpa.org/#/build-farm][file:http://melpa.org/packages/build-farm-badge.svg]]
+[[http://stable.melpa.org/#/build-farm][file:http://stable.melpa.org/packages/build-farm-badge.svg]]
+
 * About
 
 =Emacs-Build-Farm= is an Emacs interface for [[https://nixos.org/hydra/][Hydra]] and [[https://git.savannah.gnu.org/cgit/guix/guix-cuirass.git/][Cuirass]] — build
@@ -10,11 +14,30 @@ farms for [[https://nixos.org/nix/][Nix]] and [[https://www.gnu.org/software/gui
 This package allows you to look at builds, jobsets, evaluations and
 projects of these build farms.
 
+* Installation
+
+Emacs-Build-Farm can be installed using Guix or from [[https://melpa.org/][MELPA]].
+
+** Guix
+
+Just use:
+
+#+BEGIN_SRC sh
+guix package -i emacs-build-farm
+#+END_SRC
+
+** MELPA
+
+If you added "melpa" or "melpa-stable" archives to =package-archives= as
+it is described on the [[https://melpa.org/#/getting-started][MELPA Getting Started]] page, you can install
+"emacs-build-farm" using =M-x package-install= or =M-x list-packages=
+commands.
+
 * Usage
 
 The entry point for the available features is =M-x build-farm= command.
-It provides a [[https://github.com/magit/magit-popup][magit-popup]] interface to display builds, jobsets and
-projects.
+It provides a [[https://github.com/magit/magit-popup][magit-popup]] interface to display evaluations, builds,
+jobsets and projects.
 
 Alternatively, you can use the following =M-x= commands directly:
 
