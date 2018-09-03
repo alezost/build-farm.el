@@ -143,11 +143,18 @@
 ;; is no way to receive system types from a build farm.
 
 (defvar build-farm-guix-system-types
-  '("x86_64-linux" "i686-linux" "armhf-linux" "mips64el-linux")
+  '("x86_64-linux"
+    "i686-linux"
+    "armhf-linux"
+    "mips64el-linux"
+    "aarch64-linux")
   "List of systems supported by Guix build farms.")
 
 (defvar build-farm-nix-system-types
-  '("x86_64-linux" "i686-linux" "x86_64-darwin" "aarch64-linux")
+  '("x86_64-linux"
+    "i686-linux"
+    "x86_64-darwin"
+    "aarch64-linux")
   "List of systems supported by Nix build farms.")
 
 (defun build-farm-system-types (&optional url)
