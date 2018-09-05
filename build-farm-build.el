@@ -55,13 +55,6 @@ for the number of builds."
   :type 'integer
   :group 'build-farm-build)
 
-(define-button-type 'build-farm-system
-  :supertype 'bui
-  'action #'build-farm-build-button-action
-  'help-echo (concat "Show latest builds for this system "
-                     "(with prefix, prompt for all parameters)")
-  'face 'build-farm-info-system)
-
 (defun build-farm-set-number-of-builds (number)
   "Set `build-farm-number-of-builds' to NUMBER."
   (interactive (list (build-farm-build-read-number)))
@@ -127,24 +120,53 @@ If `current-prefix-arg' is specified, just return
           :job     job
           :system  system)))
 
-(defun build-farm-build-button-action (button)
-  "Display latest builds according to BUTTON."
-  (let ((args (build-farm-build-latest-prompt-args
-               :project (button-get button 'project)
-               :jobset  (button-get button 'jobset)
-               :job     (button-get button 'job)
-               :system  (button-get button 'system))))
+(defun build-farm-build-button-action (button &optional type)
+  "Display latest builds according to BUTTON.
+Additional parameters are taken from BUTTON.  If TYPE is
+specified, it should be one of the following symbols: `project',
+`jobset', `job' or `system'.  This TYPE defines what parameter
+BUTTON label is used for."
+  (let* ((label (button-label button))
+         (args (build-farm-build-latest-prompt-args
+                :project (or (button-get button 'project)
+                             (and (eq type 'project) label))
+                :jobset  (or (button-get button 'jobset)
+                             (and (eq type 'jobset) label))
+                :job     (or (button-get button 'job)
+                             (and (eq type 'job) label))
+                :system  (or (button-get button 'system)
+                             (and (eq type 'system) label)))))
     (apply #'build-farm-get-display
            (build-farm-current-url)
            'build 'latest args)))
 
-(defun build-farm-build-button-system-action (button)
-  "Display latest builds according to system BUTTON."
-  (let ((args (build-farm-build-latest-prompt-args
-               :system (button-label button))))
-    (apply #'build-farm-get-display
-           (build-farm-current-url)
-           'build 'latest args)))
+(defmacro build-farm-define-build-button (type)
+  "Define button and action function for it for TYPE.
+See `build-farm-build-button-action' for the meaning of TYPE.
+Button name is `build-farm-TYPE'.
+Function name is `build-farm-build-button-TYPE-action'."
+  (let* ((type-str (symbol-name type))
+         (btn-name (intern (concat "build-farm-" type-str)))
+         (fun-name (intern (concat "build-farm-build-button-"
+                                   type-str "-action")))
+         (face-name (intern (concat "build-farm-info-" type-str))))
+    `(progn
+       (defun ,fun-name (button)
+         "Display latest builds according to BUTTON."
+         (build-farm-build-button-action button ',type))
+
+       (define-button-type ',btn-name
+         :supertype 'bui
+         'action #',fun-name
+         'help-echo ,(concat "Show latest builds for this " type-str
+                             " (with prefix, prompt for all parameters)")
+         'face ',face-name))))
+
+;; 'project' and 'jobset' buttons for latest builds are not generated,
+;; because these buttons already exist: they are used to display the
+;; according Info interfaces.
+(build-farm-define-build-button job)
+(build-farm-define-build-button system)
 
 (cl-defun build-farm-info-insert-builds-button
     (&key project jobset job system)
@@ -174,12 +196,6 @@ If `current-prefix-arg' is specified, just return
                      'jobset jobset
                      'job job
                      'system system))
-
-(defun build-farm-info-insert-systems (systems)
-  "Insert SYSTEMS at point."
-  (bui-info-insert-value-format
-   systems 'build-farm-system
-   'action #'build-farm-build-button-system-action))
 
 (declare-function guix-build-log-mode "guix-build-log" t)
 
@@ -398,7 +414,7 @@ It should be a '%s'-sequence.")
 
 (defun build-farm-build-info-insert-job (job entry)
   "Insert JOB for build ENTRY at point."
-  (bui-format-insert job 'build-farm-info-job)
+  (insert job)
   (bui-insert-indent)
   (build-farm-info-insert-builds-button
    :project (bui-entry-non-void-value entry 'project)

@@ -81,7 +81,7 @@
   :group 'build-farm-faces)
 
 (defface build-farm-info-job
-  '((t))
+  '((t :inherit button))
   "Face for jobs in 'info' buffers."
   :group 'build-farm-faces)
 
