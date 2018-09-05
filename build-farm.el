@@ -207,7 +207,18 @@ If URL is nil, use variable `build-farm-url'."
   (concat name "-" version))
 
 (bui-define-current-args-accessors build-farm-current
-  url search-type search-args)
+  url-1 search-type search-args)
+
+(defun build-farm-current-url ()
+  "Return build farm URL of the current buffer or default URL."
+  ;; This procedure may be called from non-"build-farm" buffers.
+  ;; Return `build-farm-url' in this case.
+  (let ((entry-type (bui-current-entry-type)))
+    (if (and entry-type
+             (string-match-p "\\`build-farm"
+                             (symbol-name entry-type)))
+        (build-farm-current-url-1)
+      build-farm-url)))
 
 (defun build-farm-current-url-type ()
   "Return build farm type of the current buffer."
