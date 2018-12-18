@@ -28,7 +28,7 @@
 (require 'build-farm-build)
 
 (defgroup build-farm-evaluation nil
-  "Interface for Hydra and Cuirass evaluations."
+  "Settings for Hydra and Cuirass evaluations."
   :group 'build-farm)
 
 (defcustom build-farm-number-of-evaluations 32
@@ -67,7 +67,9 @@ command.  If nil, always prompt for the number of evaluations."
 
 (build-farm-define-entry-type cuirass-evaluation
   :search-types '((latest . build-farm-latest-evaluations-api-url))
-  :filter-names '((specification . jobset)))
+  :filter-names '((specification . jobset))
+  :filter-boolean-params '(in-progress)
+  :boolean-params '(in-progress))
 
 
 ;;; Cuirass Evaluation 'info'
@@ -80,7 +82,15 @@ command.  If nil, always prompt for the number of evaluations."
             build-farm-evaluation-info-insert-url
             nil
             (jobset format (build-farm-cuirass-evaluation-info-insert-jobset))
-            (commits format (format))))
+            (in-progress format (format))
+            (checkouts
+             simple (build-farm-cuirass-evaluation-info-insert-checkouts))))
+
+(bui-define-interface build-farm-cuirass-evaluation-checkouts info
+  :format '((commit format (format))
+            (input format (format))
+            (directory format (format bui-file)))
+  :reduced? t)
 
 (defun build-farm-cuirass-evaluation-info-insert-jobset (jobset)
   "Insert info about Cuirass JOBSET at point."
@@ -89,6 +99,13 @@ command.  If nil, always prompt for the number of evaluations."
   (build-farm-info-insert-builds-button
    :jobset jobset))
 
+(defun build-farm-cuirass-evaluation-info-insert-checkouts (checkouts)
+  "Insert 'cuirass-evaluation' CHECKOUTS at point."
+  (dolist (checkout checkouts)
+    (bui-newline)
+    (bui-info-insert-entry
+     checkout 'build-farm-cuirass-evaluation-checkouts 1)))
+
 
 ;;; Cuirass Evaluation 'list'
 
@@ -96,9 +113,29 @@ command.  If nil, always prompt for the number of evaluations."
   :describe-function 'build-farm-list-describe
   :mode-name "Cuirass-Evaluation-List"
   :buffer-name "*Farm Evaluations*"
-  :format '((id nil 10 bui-list-sort-numerically-0)
+  :format '((id build-farm-cuirass-evaluation-list-id
+                10 bui-list-sort-numerically-0)
             (jobset nil 30 t)
-            (commits nil 30 t)))
+            (commit build-farm-cuirass-evaluation-list-commit 30 t)))
+
+(defface build-farm-cuirass-evaluation-list-in-progress
+  '((t :inherit font-lock-variable-name-face))
+  "Face used for evaluation ID if it is in progress."
+  :group 'build-farm-cuirass-evaluation-list-faces)
+
+(defun build-farm-cuirass-evaluation-list-id (id entry)
+  "Return first ID of evaluation ENTRY.
+Fontify it depending on 'in-progress' status."
+  (bui-get-string
+   id
+   (and (bui-entry-non-void-value entry 'in-progress)
+        'build-farm-cuirass-evaluation-list-in-progress)))
+
+(defun build-farm-cuirass-evaluation-list-commit (_ entry)
+  "Return first commit of evaluation ENTRY."
+  (let ((checkouts (bui-entry-non-void-value entry 'checkouts)))
+    (when checkouts
+      (bui-entry-non-void-value (car checkouts) 'commit))))
 
 
 ;;; Interactive commands

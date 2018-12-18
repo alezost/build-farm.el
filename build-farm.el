@@ -6,7 +6,7 @@
 ;; Version: 0.2.1
 ;; URL: https://gitlab.com/alezost-emacs/build-farm
 ;; Keywords: tools
-;; Package-Requires: ((emacs "24.4") (bui "1.1.0") (magit-popup "2.1.0"))
+;; Package-Requires: ((emacs "24.4") (bui "1.2.1") (magit-popup "2.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
